@@ -8,5 +8,3 @@
 #include <unistd.h>
 #include "stateMachine.h"
 #include "../macros/const.h"
-
-#define BCC A_RCV^C_RCV
