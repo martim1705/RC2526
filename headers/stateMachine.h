@@ -4,10 +4,10 @@
 
 // Machine state states 
 enum State {
-    START,
-    FLAG_RCV,
-    A_RCV,
-    C_RCV,
-    BCC_OK,
-    STOP
+    ST_START,
+    ST_FLAG_RCV,
+    ST_A_RCV,
+    ST_C_RCV,
+    ST_BCC_OK,
+    ST_STOP
 }; 
