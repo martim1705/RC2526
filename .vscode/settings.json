@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "read_noncanonical.h": "c",
+        "write_noncanonical.h": "c"
+    }
+}

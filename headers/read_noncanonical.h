@@ -8,3 +8,6 @@
 #include <unistd.h>
 #include "stateMachine.h"
 #include "../macros/const.h"
+
+
+void run_receiver(int argc, char *argv[]);
