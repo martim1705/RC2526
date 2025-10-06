@@ -1,0 +1,6 @@
+Para compilar o código, primeiro é necessário colocar o caminho do ficheiro a ser compilado no makefile 
+! Colocar em SRC
+
+Comando para compilar no terminal -> make 
+Comando para apagar os executáveis -> make clean 
+Comando para executar -> ./project argumentos (argumentos pode ser /dev/tty/USB0)
