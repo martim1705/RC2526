@@ -1,7 +1,5 @@
-#include "stdlib.h"
-#include "stdio.h"
-
-
+#ifndef STATEMACHINE_H
+#define STATEMACHINE_H
 // Machine state states 
 enum State {
     ST_START,
@@ -11,3 +9,4 @@ enum State {
     ST_BCC_OK,
     ST_STOP
 }; 
+#endif

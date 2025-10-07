@@ -1,6 +1,6 @@
 #include "../headers/read_noncanonical.h"
 #include "../headers/serial.h"
-
+#include "../headers/stateMachine.h"
 
 // ---------------------------------------------------
 // MAIN function
@@ -23,29 +23,69 @@ exit(-1);
 
 printf("Serial port %s opened\n", serialPort);
 
-// Read from serial port until the 'z' char is received.
+// state machine implementation 
 
-// NOTE: This while() cycle is a simple example showing how to read from the serial port.
-// It must be changed in order to respect the specifications of the protocol indicated in the Lab guide.
-
-// TODO: Save the received bytes in a buffer array and print it at the end of the program.
 int nBytesBuf = 0;
 
-while (STOP == FALSE)
-{
-// Read one byte from serial port.
-// NOTE: You must check how many bytes were actually read by reading the return value.
-// In this example, we assume that the byte is always read, which may not be true.
-unsigned char byte;
-int bytes = readByteSerialPort(&byte);
-nBytesBuf += bytes;
 
-printf("Byte received: 0x%02X\n", byte);
+unsigned char byte; 
+int current_state = ST_START;
 
-if (nBytesBuf == 5 && byte == FLAG)
-{
-STOP = TRUE;
-}
+
+while (current_state != ST_STOP) {
+
+    nBytesBuf += 1; 
+    if (readByteSerialPort(&byte) < 0) {
+        printf("Byte coul not be read");
+        exit(0);
+    }
+    
+    printf("byte = 0x%02X\n", byte);
+    switch(current_state) {
+         
+        case ST_START:
+            if (byte == FLAG) {
+                current_state = ST_FLAG_RCV;
+                 
+            } 
+            break;
+        case ST_FLAG_RCV:
+        
+            if (byte == A_SND) {
+                current_state = ST_A_RCV; 
+            } else if (byte == FLAG) {
+                current_state = ST_FLAG_RCV; 
+            } else {
+                current_state = ST_START; 
+            }
+            break; 
+        case ST_A_RCV:
+            if (byte == C_SND) {
+                current_state = ST_C_RCV;
+            } else if (byte == FLAG) {
+                current_state = ST_FLAG_RCV; 
+            } else {current_state = ST_START;}
+                break; 
+        case ST_C_RCV:
+            if (byte == BCC_SND) {
+                current_state = ST_BCC_OK; 
+            } else if (byte == FLAG) {
+                current_state = ST_FLAG_RCV; 
+            } else {
+                current_state = ST_START; 
+            }
+            break; 
+        case ST_BCC_OK:
+            if (byte == FLAG) {
+                    current_state = ST_STOP;
+            } else {
+                current_state = ST_START;
+            }
+            break;
+        default:
+            printf("Impossible state reached.");
+            break; 
+    }
 }
 
 printf("Total bytes received: %d\n", nBytesBuf);
