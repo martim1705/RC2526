@@ -5,7 +5,7 @@
 #include "../headers/write_noncanonical.h"
 #include "../macros/const.h"
 #include "../headers/serial.h"
-
+#include "../headers/alarm_sigaction.h"
 // alarm MACROS 
 int alarmEnabled = FALSE;
 int alarmCount = 0; 

@@ -10,5 +10,5 @@
 // alarm 
 #include <signal.h>
 
-void alarmHandler(int signal);
+// void alarmHandler(int signal);
 void run_sender(int argc, char *argv[]); 
