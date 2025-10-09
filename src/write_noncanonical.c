@@ -6,6 +6,8 @@
 #include "../macros/const.h"
 #include "../headers/serial.h"
 #include "../headers/alarm_sigaction.h"
+#include <stdlib.h>
+#include <stdio.h>
 // alarm MACROS 
 int alarmEnabled = FALSE;
 int alarmCount = 0; 
@@ -18,7 +20,7 @@ void alarmHandler(int signal)
     alarmCount++;
 
     printf("Alarm #%d received\n", alarmCount);
-}
+} 
 
 
 
@@ -27,7 +29,7 @@ void alarmHandler(int signal)
 // ---------------------------------------------------
 void run_sender(int argc, char *argv[])
 {
-
+    printf("Initiating run_sender().\n");
     // Open serial port device for reading and writing, and not as controlling tty
     // because we don't want to get killed if linenoise sends CTRL-C.
     //
@@ -64,9 +66,9 @@ void run_sender(int argc, char *argv[])
 
     // Create string to send
     unsigned char buf[BUF_SIZE] = {FLAG, A_SND, C_SND, BCC_SND, FLAG};
-
+    int nBytes = 0;
      
-
+    
     // In non-canonical mode, '\n' does not end the writing.
     // Test this condition by placing a '\n' in the middle of the buffer.
     // The whole buffer must be sent even with the '\n'.
@@ -80,43 +82,36 @@ void run_sender(int argc, char *argv[])
     while (alarmCount < 4 && STOP == FALSE)
     {
         // number of incoming bytes that were read
-        
-        
-        if (alarmEnabled == FALSE)
-        {
-
-            
-            int bytes = writeBytesSerialPort(buf, BUF_SIZE);
-            printf("%d bytes written to serial port\n", bytes);
-            printf("Initiating 3 seconds alarm.\n");
-
-            int nBytes = 0;
-            
-
-
-            alarm(3); // Set alarm to be triggered in 3s
-            //enviar a trama SET aqui! 
-            printf("Receiving UA frame.\n");
-            
-            // read byte
-            while (STOP == FALSE) {
-                
-                unsigned char byte;
-                readByteSerialPort(&byte);
-                nBytes += 1;
-                printf("Byte read: 0x%02X\n", byte);
-                printf("nBytes= %d\n", nBytes); 
-                if ( nBytes == 5 && byte == FLAG) {
-                    printf("All bytes read.");
-                    STOP = TRUE; 
-                    alarm(0);
-                }
-            }
-        
-            alarmEnabled = TRUE;
-
-        }
          
+        
+        
+        
+        
+        if (alarmEnabled == FALSE) {
+            int bytes = writeBytesSerialPort(buf, BUF_SIZE);
+            sleep(1);
+            printf("%d bytes written to serial port\n", bytes);
+            alarm(3); // Set alarm to be triggered in 3s
+            alarmEnabled = TRUE;
+        }
+            // read byte
+            
+                
+            
+        unsigned char byte;
+        if (readByteSerialPort(&byte) == 1) {
+            nBytes += 1;
+            printf("Byte read: 0x%02X\n", byte);
+            printf("nBytes= %d\n", nBytes); 
+            if ( nBytes == 5 && byte == FLAG) {
+                printf("All bytes read.\n");
+                STOP = TRUE;
+                alarm(0);
+                break; 
+            }
+        } else {
+            printf("Byte not read.\n"); 
+        }
     }
 
     printf("Ending program\n");

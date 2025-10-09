@@ -1,14 +1,15 @@
 #include "../headers/read_noncanonical.h"
 #include "../headers/serial.h"
 #include "../headers/stateMachine.h"
-
+#include <stdlib.h>
+#include <stdio.h>
 // ---------------------------------------------------
 // MAIN function
 // ---------------------------------------------------
 void run_receiver(int argc, char *argv[])
 {
 
-
+printf("Initiating run_receiver().\n");
 // Open serial port device for reading and writing, and not as controlling tty
 // because we don't want to get killed if linenoise sends CTRL-C.
 //
@@ -29,18 +30,17 @@ int nBytesBuf = 0;
 
 
 unsigned char byte; 
-int current_state = ST_START;
 
+while (readByteSerialPort(&byte) == 0) { 
+}
+int current_state = ST_START;
 
 while (current_state != ST_STOP) {
 
-    nBytesBuf += 1; 
-    if (readByteSerialPort(&byte) < 0) {
-        printf("Byte coul not be read");
-        exit(0);
-    }
+     
     
     printf("byte = 0x%02X\n", byte);
+    printf("current_state= %d\n", current_state);
     switch(current_state) {
          
         case ST_START:
@@ -77,15 +77,21 @@ while (current_state != ST_STOP) {
             break; 
         case ST_BCC_OK:
             if (byte == FLAG) {
+                    printf("byte == 0x7E\n");
                     current_state = ST_STOP;
             } else {
                 current_state = ST_START;
             }
             break;
+        case ST_STOP:
+            break; 
         default:
             printf("Impossible state reached.");
             break; 
     }
+    nBytesBuf += 1; 
+    if (current_state != 5)
+    readByteSerialPort(&byte);
 }
 
 printf("Total bytes received: %d\n", nBytesBuf);
@@ -94,7 +100,10 @@ printf("Total bytes received: %d\n", nBytesBuf);
 
 unsigned char buf[BUF_SIZE] = {FLAG, A_RCV, C_RCV , BCC_RCV, FLAG};
 
-writeBytesSerialPort(buf, BUF_SIZE);
+if (writeBytesSerialPort(buf, BUF_SIZE) < 0) {
+    printf("Bytes could not be sent by sender."); 
+    exit(1); 
+}
 printf("Bytes written!");
 
 sleep(1);

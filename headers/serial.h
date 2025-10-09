@@ -1,5 +1,4 @@
-#ifndef SERIAL_H
-#define SERIAL_H
+
 
 #include <termios.h>
 #include <stddef.h>
@@ -16,4 +15,3 @@ int closeSerialPort(void);
 int readByteSerialPort(uint8_t *b);
 int writeBytesSerialPort(const unsigned char *b, int n);
 
-#endif
