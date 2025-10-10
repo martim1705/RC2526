@@ -120,3 +120,4 @@ printf("Serial port %s closed\n", serialPort);
 
 }
 
+
