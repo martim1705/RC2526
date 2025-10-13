@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!strcmp(argv[1], "/dev/pts/3")) run_receiver(argc, argv);
-    else if (!strcmp(argv[1], "/dev/pts/4")) run_sender(argc, argv);
+    else if (!strcmp(argv[1], "/dev/pts/2")) run_sender(argc, argv);
 
     return 0; 
 }

@@ -40,7 +40,7 @@ while (current_state != ST_STOP) {
      
     
     printf("byte = 0x%02X\n", byte);
-    printf("current_state= %d\n", current_state);
+    
     switch(current_state) {
          
         case ST_START:
@@ -77,7 +77,7 @@ while (current_state != ST_STOP) {
             break; 
         case ST_BCC_OK:
             if (byte == FLAG) {
-                    printf("byte == 0x7E\n");
+                    
                     current_state = ST_STOP;
             } else {
                 current_state = ST_START;
