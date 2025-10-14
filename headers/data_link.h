@@ -14,7 +14,11 @@ LlTx, // Act as transmitter
 LlRx, // Act as receiver
 } LinkLayerRole;
 
+int llopen(LinkLayer connectionParameters);
+
 int llwrite(const unsigned char *buf, int bufSize); 
 
 int llread(unsigned char *packet); 
+
+int llclose(); 
 #endif _DATA_LINK_H_

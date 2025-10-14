@@ -128,5 +128,3 @@ void run_sender(int argc, char *argv[])
     printf("Serial port %s closed\n", serialPort);
 
 }
-
-
