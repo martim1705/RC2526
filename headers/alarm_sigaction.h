@@ -5,14 +5,16 @@
 
 #include "../macros/const.h"
 
-int alarmEnabled = FALSE;
-int alarmCount = 0; 
-
+ 
+typedef struct {
+    int alarmEnabled; 
+    int alarmCount; 
+} alarmStates; 
 
 
 void alarmHandler(int signal);
 
-void configAlarm();
+void configAlarm(alarmStates alarmState);
 
 void disableAlarm();
 

@@ -7,6 +7,8 @@
 #include <stdio.h>
 
  
+alarmStates alarmState; 
+
 int llopen(LinkLayer parameters) {
 
     if (openSerialPort(parameters.serialPort, parameters.baudrate) < 0) {
@@ -27,7 +29,7 @@ int llopen(LinkLayer parameters) {
             return -1;  
         } 
 
-        configAlarm();
+        configAlarm(alarmState.alarmCount, alarmState.);
         
         
         int nBytes = 0; 
