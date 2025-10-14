@@ -11,6 +11,7 @@ int llopen(LinkLayer parameters) {
             printf("Serial port opening error.\n");
             return -1; 
         };  
+    printf("Serial port %s opened\n", parameters.serialPort);
     if (!strcmp(parameters.role, "LlTx")) {
         
     } else if (!strcmp(parameters.role,"LlRx")) {
