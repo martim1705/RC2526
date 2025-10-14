@@ -1,9 +1,6 @@
-#include "../macros/const.h"
-//#include "../headers/alarm_sigaction.h"
-#include "../headers/write_noncanonical.h"
-#include "../headers/read_noncanonical.h"
+
 #include "../headers/applicationLayer.h"
-#include "../headers/data_link.h" 
+
 #include <string.h>
 
 #include <stdlib.h>
@@ -22,14 +19,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    LinkLayer parameters;
     
     
-    const char* serialPort[50] = argv[1];
-    const int baudrate = toi(argv[2]);
+    const char *serialPort[50] = argv[1];
+    const int baudrate = atoi(argv[2]);
     const char *role = argv[3];     
 // check role values
-    if (strcmp(role, "LlRx") || strcmp(role, "LlTx")) {
+    if (strcmp(role, "LlRx") != 0 && strcmp(role, "LlTx") != 0) {
         printf("error in role. Must be \"LlTx\" or \"LlRx\".\n");
         exit(1); 
     } 
@@ -37,15 +33,11 @@ int main(int argc, char *argv[]) {
     // check baudrate values
     switch (baudrate)
     {
-        CASE_BAUDRATE(1200);
-        CASE_BAUDRATE(1800);
-        CASE_BAUDRATE(2400);
-        CASE_BAUDRATE(4800);
-        CASE_BAUDRATE(9600);
-        CASE_BAUDRATE(19200);
-        CASE_BAUDRATE(38400);
-        CASE_BAUDRATE(57600);
-        CASE_BAUDRATE(115200);
+        case 1200: case 1800: case 2400: case 4800:
+        case 9600: case 19200: case 38400: case 57600:
+        case 115200:
+            break; 
+        
     default:
         fprintf(stderr, "Unsupported baud rate (must be one of 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200)\n");
         exit(1);
