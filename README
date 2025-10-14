@@ -4,3 +4,19 @@ Para compilar o código, primeiro é necessário colocar o caminho do ficheiro a
 Comando para compilar no terminal -> make 
 Comando para apagar os executáveis -> make clean 
 Comando para executar -> ./project argumentos (argumentos pode ser /dev/tty/USB0)
+
+
+
+Código ainda não está pronto para começar protocolo STOP&WAIT. Falta a lógica para mandar a trama UA.O envio de tramas é feito em data_link. 
+Também falta terminar llclose(), llwrite() e llread(). llopen() tem a lógica para o envio das tramas SET e UA. 
+
+No futuro será necessário eliminar write_noncanonical e read_noncanonical
+
+
+alarm_sig contém a lógica para o alarme (desativar, configurar, reativar)
+application_layer contém a lógica para passar os dados (porta série, role,...) para a struct linkLayer
+data_link serve para enviar as tramas 
+frames cria as tramas 
+project é o ficheiro principal, que inicializa o programa 
+read & write noncanonical e setMachine -> ficheiros que vão ser apagados 
+serial contém todas as funções low-level (abrir, fechar porta série , ler e escrever bytes para as portas)
