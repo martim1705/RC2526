@@ -2,20 +2,73 @@
 #include "../headers/alarm_sigaction.h"
 #include "../headers/read_noncanonical.h"
 #include "../headers/write_noncanonical.h"
+#include "../headers/frames.h"
 #include "../headers/serial.h"
 #include <stdio.h>
 
  
 int llopen(LinkLayer parameters) {
+
     if (openSerialPort(parameters.serialPort, parameters.baudrate) < 0) {
             printf("Serial port opening error.\n");
             return -1; 
         };  
+
     printf("Serial port %s opened\n", parameters.serialPort);
+
+    unsigned char *frame;
+     
+    
     if (!strcmp(parameters.role, "LlTx")) {
         
-    } else if (!strcmp(parameters.role,"LlRx")) {
         
+        if (create_SET(frame) != BUF_SIZE) {
+            printf("SET Frame was incorrectly set up.\n");
+            return -1;  
+        } 
+
+        configAlarm();
+        
+        
+        int nBytes = 0; 
+
+
+        while (alarmCount < parameters.nRetransmissions) 
+        {
+            if (!alarmEnabled) {
+                int bytes = writeBytesSerialPort(frame, BUF_SIZE);
+            sleep(1);
+            printf("%d bytes written to serial port\n", bytes);
+            enableAlarm(parameters.timeout); // Set alarm to be triggered in 3s
+            alarmEnabled = TRUE;
+        }
+            // read byte
+            
+                
+            
+        unsigned char byte;
+        if (readByteSerialPort(&byte) == 1) {
+            nBytes += 1;
+            printf("Byte read: 0x%02X\n", byte);
+            printf("nBytes= %d\n", nBytes); 
+            if ( nBytes == 5 && byte == FLAG) {
+                printf("All bytes read.\n");
+                disableAlarm(); 
+                break; 
+            }
+        } else {
+            printf("Byte not read.\n"); 
+        }
+            }
+        
+        } else if (!strcmp(parameters.role,"LlRx")) {
+        
+                if (create_UA(frame) != BUF_SIZE) {
+                    printf("UA frame was incorrectly set up.\n");
+                    return -1; 
+                } 
+
+
     } else return -1; 
 
     return 0;
@@ -26,57 +79,7 @@ int llclose();
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// alarm MACROS 
-    int alarmEnabled = FALSE;
-    int alarmCount = 0; 
-
-
-    // alarm handler code 
-    void alarmHandler(int signal)
-    {
-        alarmEnabled = FALSE;
-        alarmCount++;
-
-        printf("Alarm #%d received\n", alarmCount);
-    }
+    
 
 
 int llwrite(const unsigned char *buf, int bufSize) {
@@ -89,30 +92,4 @@ int llwrite(const unsigned char *buf, int bufSize) {
         printf("buf was passed as a null pointer.\n");
         return -1; 
     }
-
-    // se os argumento estiverem todos corretos entao 
-    // configurar o alarme 
-    // começar o alarme
-
-    while (alarmCount < 4 && )
-    
-
-    // Set alarm function handler.
-    // Install the function signal to be automatically invoked when the timer expires,
-    // invoking in its turn the user function alarmHandler
-    struct sigaction act = {0};
-    act.sa_handler = &alarmHandler;
-    if (sigaction(SIGALRM, &act, NULL) == -1) // configurar o alarme
-    {
-        perror("sigaction");
-        exit(1);
-    }
-
-    printf("Alarm configured\n");
-
-    int t = 3; 
-    alarm(t); 
-
-
-
 }

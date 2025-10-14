@@ -16,22 +16,16 @@ int t = 3;
 
 // Alarm function handler.
 // This function will run whenever the signal SIGALRM is received.
-void alarmHandler(int signal)
-{
-    alarmEnabled = FALSE;
-    alarmCount++;
+void configAlarm() {
 
-    printf("Alarm #%d received\n", alarmCount);
+    void alarmHandler(int signal) {
+        alarmEnabled = FALSE;
+        alarmCount++;
+
+        printf("Alarm #%d received\n", alarmCount);
 }
 
 
-
-
-int main()
-{
-    // Set alarm function handler.
-    // Install the function signal to be automatically invoked when the timer expires,
-    // invoking in its turn the user function alarmHandler
     struct sigaction act = {0};
     act.sa_handler = &alarmHandler;
     if (sigaction(SIGALRM, &act, NULL) == -1)
@@ -41,6 +35,20 @@ int main()
     }
 
     printf("Alarm configured\n");
+
+
+}
+
+
+
+
+
+int main()
+{
+    // Set alarm function handler.
+    // Install the function signal to be automatically invoked when the timer expires,
+    // invoking in its turn the user function alarmHandler
+    
 
     while (alarmCount < 4)
     {

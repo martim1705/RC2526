@@ -5,6 +5,15 @@
 
 #include "../macros/const.h"
 
+int alarmEnabled = FALSE;
+int alarmCount = 0; 
 
 
-void alarmHandler(int signal); 
+
+void alarmHandler(int signal);
+
+void configAlarm();
+
+void disableAlarm();
+
+void enableAlarm(int time);

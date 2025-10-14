@@ -1,5 +1,5 @@
 #include "../headers/frames.h"
-#include "../macros/const.h"
+
 
 
 int create_SET(unsigned char *frame) {
@@ -13,7 +13,8 @@ int create_SET(unsigned char *frame) {
 
 }
 
-int create_UA(unsigned char * frame) {
+int create_UA(unsigned char *frame) {
+    
     frame[0] = FLAG; 
     frame[1] = A_RCV; 
     frame[2] = C_RCV;
@@ -21,3 +22,4 @@ int create_UA(unsigned char * frame) {
     frame[4] = FLAG; 
     return 5;
 }
+
