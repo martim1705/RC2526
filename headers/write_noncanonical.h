@@ -11,4 +11,4 @@
 #include <signal.h>
 
 void alarmHandler(int signal);
-void run_sender(int argc, char *argv[]); 
+void send_SET(int argc, char *argv[]); 

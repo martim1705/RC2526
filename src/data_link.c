@@ -1,8 +1,69 @@
 #include "../headers/data_link.h"
 #include "../headers/alarm_sigaction.h"
+#include "../headers/read_noncanonical.h"
+#include "../headers/write_noncanonical.h"
+#include "../headers/serial.h"
 #include <stdio.h>
 
- // alarm MACROS 
+ 
+int llopen(LinkLayer parameters) {
+    if (openSerialPort(parameters.serialPort, parameters.baudrate) < 0) {
+            printf("Serial port opening error.\n");
+            return -1; 
+        };  
+    if (!strcmp(parameters.role, "LlTx")) {
+        
+    } else if (!strcmp(parameters.role,"LlRx")) {
+        
+    } else return -1; 
+
+    return 0;
+}
+     
+int llclose();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// alarm MACROS 
     int alarmEnabled = FALSE;
     int alarmCount = 0; 
 

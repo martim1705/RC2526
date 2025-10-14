@@ -3,6 +3,6 @@
 
 
 // ainda e preciso 
-int appConfig(const char *serialPort, const char* role, int baudrate, int timeout, int ntransmissions);
+void appConfig(const char *serialPort, const char* role, int baudrate, int timeout, int nretransmissions);
 
 #endif

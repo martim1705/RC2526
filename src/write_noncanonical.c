@@ -27,7 +27,7 @@ void alarmHandler(int signal)
 // ---------------------------------------------------
 // MAIN
 // ---------------------------------------------------
-void run_sender(int argc, char *argv[])
+void send_SET(int argc, char *argv[])
 {
     printf("Initiating run_sender().\n");
     // Open serial port device for reading and writing, and not as controlling tty
