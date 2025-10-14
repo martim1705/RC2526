@@ -16,6 +16,6 @@ void alarmHandler(int signal);
 
 void configAlarm(alarmStates alarmState);
 
-void disableAlarm();
+void disableAlarm(alarmStates alarmState);
 
 void enableAlarm(int time);

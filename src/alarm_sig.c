@@ -14,8 +14,8 @@ void alarmHandler(int signal, alarmStates alarmState) {
 
 void configAlarm(alarmStates alarmState) {
 
-    alarmState.alarmCount = FALSE; 
-    alarmState.alarmEnabled = 1; 
+    alarmState.alarmCount = 0; 
+    alarmState.alarmEnabled = FALSE; 
 
     struct sigaction act = {0};
     act.sa_handler = &alarmHandler;
@@ -28,7 +28,8 @@ void configAlarm(alarmStates alarmState) {
     printf("Alarm configured\n");
 }
 
-void disableAlarm() {
+void disableAlarm(alarmStates alarmState) {
+    alarmState.alarmEnabled = FALSE; 
     alarm(0);
 }
 

@@ -29,20 +29,20 @@ int llopen(LinkLayer parameters) {
             return -1;  
         } 
 
-        configAlarm(alarmState.alarmCount, alarmState.);
+        configAlarm(alarmState);
         
         
         int nBytes = 0; 
 
 
-        while (alarmCount < parameters.nRetransmissions) 
+        while (alarmState.alarmCount < parameters.nRetransmissions) 
         {
-            if (!alarmEnabled) {
+            if (!alarmState.alarmEnabled) {
                 int bytes = writeBytesSerialPort(frame, BUF_SIZE);
             sleep(1);
             printf("%d bytes written to serial port\n", bytes);
             enableAlarm(parameters.timeout); // Set alarm to be triggered in 3s
-            alarmEnabled = TRUE;
+            alarmState.alarmEnabled = TRUE;
         }
             // read byte
             
@@ -55,7 +55,7 @@ int llopen(LinkLayer parameters) {
             printf("nBytes= %d\n", nBytes); 
             if ( nBytes == 5 && byte == FLAG) {
                 printf("All bytes read.\n");
-                disableAlarm(); 
+                disableAlarm(alarmState); 
                 break; 
             }
         } else {
