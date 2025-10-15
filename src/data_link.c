@@ -4,6 +4,8 @@
 #include "../headers/write_noncanonical.h"
 #include "../headers/frames.h"
 #include "../headers/serial.h"
+#include "../headers/stateMachine.h"
+#include "../macros/const.h"
 #include <stdio.h>
 
  
@@ -49,6 +51,7 @@ int llopen(LinkLayer parameters) {
                 
             
         unsigned char byte;
+
         if (readByteSerialPort(&byte) == 1) {
             nBytes += 1;
             printf("Byte read: 0x%02X\n", byte);
@@ -64,14 +67,23 @@ int llopen(LinkLayer parameters) {
             }
         
         } else if (!strcmp(parameters.role,"LlRx")) {
-        
-                if (create_UA(frame) != BUF_SIZE) {
-                    printf("UA frame was incorrectly set up.\n");
-                    return -1; 
-                } 
+            
+            // receive SET - first step with state machine implemented 
+            int current_state = ; 
+            
 
 
-    } else return -1; 
+            // create UA frame - 2nd step 
+            if (create_UA(frame) != BUF_SIZE) {
+                printf("UA frame was incorrectly set up.\n");
+                return -1; 
+            }
+            
+            
+            // send UA - third step 
+
+
+        } else return -1; 
 
     return 0;
 }

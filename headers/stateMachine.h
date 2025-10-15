@@ -1,5 +1,7 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
+
+
 // Machine state states 
 enum State {
     ST_START,
@@ -8,5 +10,8 @@ enum State {
     ST_C_RCV,
     ST_BCC_OK,
     ST_STOP
-}; 
+};
+
+int change_state(unsigned char byte, int *current_state);
+
 #endif

@@ -18,5 +18,6 @@ application_layer contém a lógica para passar os dados (porta série, role,...
 data_link serve para enviar as tramas 
 frames cria as tramas 
 project é o ficheiro principal, que inicializa o programa 
-read & write noncanonical e setMachine -> ficheiros que vão ser apagados 
+read & write noncanonical -> ficheiros que vão ser apagados 
 serial contém todas as funções low-level (abrir, fechar porta série , ler e escrever bytes para as portas)
+setMachine contém toda a lógica da máquina de estados
