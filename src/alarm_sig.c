@@ -1,11 +1,18 @@
 #include "../headers/alarm_sigaction.h"
+#include <string.h>
+#include <unistd.h>   // alarm()
+#include <stdio.h>
+#include <stdlib.h>
 
-alarmStates alarmState; 
+volatile sig_atomic_t alarmEnabled = 0;  
+volatile sig_atomic_t alarmCount   = 0;
+
+ 
 
 // define alarmHandler 
 void alarmHandler(int signal) {
-    alarmState.alarmEnabled = FALSE;
-    alarmState.alarmCount++;
+    alarmEnabled = 0;
+    alarmCount++;
 }
 
     // Set alarm function handler.
@@ -24,11 +31,11 @@ void configAlarm() {
 }
 
 void disableAlarm() {
-    alarmState.alarmEnabled = FALSE; 
+    alarmEnabled = 0; 
     alarm(0);
 }
 
 void enableAlarm(int timeout) {
-    alarmState.alarmEnabled = TRUE; 
+    alarmEnabled = 1; 
     alarm(timeout); 
 }

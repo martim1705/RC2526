@@ -9,7 +9,6 @@
 #include <stdio.h>
 
  
-alarmStates alarmState; 
 
 int llopen(LinkLayer parameters) {
 
@@ -40,15 +39,15 @@ int llopen(LinkLayer parameters) {
         int nBytes = 0; 
 
 
-        while (alarmState.alarmCount < parameters.nRetransmissions) 
+        while (alarmCount < parameters.nRetransmissions) 
         {
-            if (!alarmState.alarmEnabled) {
+            if (!alarmEnabled) {
                 int bytes = writeBytesSerialPort(frame, BUF_SIZE);
             sleep(1);
             printf("%d bytes written to serial port\n", bytes);
             
             enableAlarm(timeout); // Set alarm to be triggered in 3s
-            alarmState.alarmEnabled = TRUE;
+            alarmEnabled = TRUE;
         }
             // read byte
             

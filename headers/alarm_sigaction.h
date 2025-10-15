@@ -1,20 +1,14 @@
+#ifndef ALARM_SIGACTION_H
+#define ALARM_SIGACTION_H
+
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h> 
-
-#include "../macros/const.h"
- 
-typedef struct {
-    int alarmEnabled; 
-    int alarmCount; 
-} alarmStates; 
 
 
-void alarmHandler(int signal);
+extern volatile sig_atomic_t alarmEnabled;
+extern volatile sig_atomic_t alarmCount;
 
 void configAlarm();
-
+void enableAlarm(int seconds);
 void disableAlarm();
 
-void enableAlarm(int timeout);
+#endif 
