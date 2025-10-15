@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[]) {
     //./project 
-    // utilizador escolhe opção (receiver(1)/sender(2))
+    // utilizador escolhe opção (receiver(1)/sender(0))
     if (argc < 4) {
         printf("Usage: %s <serial port> <baudrate> <LlTx|LlRx>\n", argv[0]);
         return 1;
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
 
     
     
-    const char *serialPort[50] = argv[1];
+    const char *serialPort = argv[1];
     const int baudrate = atoi(argv[2]);
     const char *role = argv[3];     
 // check role values

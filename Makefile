@@ -1,7 +1,7 @@
 # Compilador e flags
 CC = gcc                # compilador
 CFLAGS = -Wall -O2      # flags de compilação
-SRC = src/project.c src/read_noncanonical.c src/write_noncanonical.c src/serial.c
+SRC = src/project.c src/alarm_sig.c src/serial.c src/applicationLayer.c src/data_link.c src/frames.c src/setMachine.c
 OBJ = $(SRC:.c=.o)      # gera lista de objetos substituindo .c -> .o
 EXE = project           # nome do executável
 

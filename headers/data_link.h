@@ -1,5 +1,12 @@
-#ifndef _DATA_LINK_H_
-#define _DATA_LINK_H_
+#ifndef DATA_LINK_H_
+#define DATA_LINK_H_
+
+
+typedef enum{
+LlTx, // Act as transmitter
+LlRx, // Act as receiver
+} LinkLayerRole;
+
 
 typedef struct {
     char serialPort[50]; // Device /dev/ttySx {x = {0,1}}
@@ -9,10 +16,7 @@ typedef struct {
     int nRetransmissions; //Number of retries in case of failure 
 } LinkLayer;
 
-typedef enum{
-LlTx, // Act as transmitter
-LlRx, // Act as receiver
-} LinkLayerRole;
+
 
 int llopen(LinkLayer connectionParameters);
 
@@ -22,4 +26,4 @@ int llread(unsigned char *packet);
 
 int llclose(); 
 
-#endif _DATA_LINK_H_
+#endif 

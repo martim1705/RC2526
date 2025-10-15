@@ -10,7 +10,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
     
     
     LinkLayer parameters; 
-    strcopy(parameters.serialPort, serialPort);
+    strcpy(parameters.serialPort, serialPort);
     parameters.baudrate = baudrate; 
     parameters.nRetransmissions = nretransmissions; 
     parameters.timeout = timeout; 

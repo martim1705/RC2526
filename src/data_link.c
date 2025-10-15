@@ -25,7 +25,7 @@ int llopen(LinkLayer parameters) {
     unsigned char *frame; // used to create UA or SET 
      
     
-    if (!strcmp(parameters.role, "LlTx")) {
+    if (!parameters.role) {
         
         int timeout = parameters.timeout;
         
@@ -70,7 +70,7 @@ int llopen(LinkLayer parameters) {
         }
             }
         
-        } else if (!strcmp(parameters.role,"LlRx")) {
+        } else if (parameters.role) {
             
             // receive SET - first step with state machine implemented 
             

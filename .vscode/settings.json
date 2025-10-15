@@ -3,6 +3,8 @@
         "read_noncanonical.h": "c",
         "write_noncanonical.h": "c",
         "alarm_sigaction.h": "c",
-        "signal.h": "c"
-    }
+        "signal.h": "c",
+        "applicationlayer.h": "c"
+    },
+    "makefile.configureOnOpen": true
 }
