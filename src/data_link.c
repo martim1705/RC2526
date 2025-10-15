@@ -20,7 +20,7 @@ int llopen(LinkLayer parameters) {
 
     printf("Serial port %s opened\n", parameters.serialPort);
 
-    unsigned char *frame;
+    unsigned char *frame; // used to create UA or SET 
      
     
     if (!strcmp(parameters.role, "LlTx")) {
@@ -43,7 +43,7 @@ int llopen(LinkLayer parameters) {
                 int bytes = writeBytesSerialPort(frame, BUF_SIZE);
             sleep(1);
             printf("%d bytes written to serial port\n", bytes);
-            enableAlarm(parameters.timeout); // Set alarm to be triggered in 3s
+            enableAlarm(parameters); // Set alarm to be triggered in 3s
             alarmState.alarmEnabled = TRUE;
         }
             // read byte
@@ -95,7 +95,13 @@ int llopen(LinkLayer parameters) {
             
             
             // send UA - third step 
+            if (writeBytesSerialPort(frame, BUF_SIZE) < 0) {
+                printf("Bytes could not be sent by sender."); 
+                exit(1); 
+            }
+            printf("Bytes written!");
 
+            sleep(1);
 
         } else return -1; 
 

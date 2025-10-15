@@ -1,5 +1,7 @@
 #include "../headers/alarm_sigaction.h"
 
+
+
 // define alarmHandler 
 void alarmHandler(int signal, alarmStates alarmState) {
     alarmState.alarmEnabled = FALSE;
@@ -33,6 +35,6 @@ void disableAlarm(alarmStates alarmState) {
     alarm(0);
 }
 
-enableAlarm(int time) {
-    alarm(time); 
+void enableAlarm(LinkLayer linkLayer) {
+    alarm(linkLayer.timeout); 
 }
