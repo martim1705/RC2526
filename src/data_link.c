@@ -69,10 +69,24 @@ int llopen(LinkLayer parameters) {
         } else if (!strcmp(parameters.role,"LlRx")) {
             
             // receive SET - first step with state machine implemented 
-            int current_state = ; 
             
+            unsigned char byte; 
+            int current_state = ST_START; // INITIAL STATE
 
+            while (current_state != ST_STOP) { // While current_state is not the last
+                
+                int r = readByteSerialPort(&byte); 
+                if (r == 1) { // while a SET byte is read  
 
+                    change_state(byte, &current_state); // stage changes 
+                }
+                else if (r < 0) { 
+                    perror("No byte was read in receiver serialPort."); 
+                    break; 
+                }
+            }
+
+            printf("SET frame received and read. Starting UA frame creation.\n"); 
             // create UA frame - 2nd step 
             if (create_UA(frame) != BUF_SIZE) {
                 printf("UA frame was incorrectly set up.\n");
