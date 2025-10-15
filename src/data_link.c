@@ -13,6 +13,8 @@ alarmStates alarmState;
 
 int llopen(LinkLayer parameters) {
 
+    
+
     if (openSerialPort(parameters.serialPort, parameters.baudrate) < 0) {
             printf("Serial port opening error.\n");
             return -1; 
@@ -25,13 +27,14 @@ int llopen(LinkLayer parameters) {
     
     if (!strcmp(parameters.role, "LlTx")) {
         
+        int timeout = parameters.timeout;
         
         if (create_SET(frame) != BUF_SIZE) {
             printf("SET Frame was incorrectly set up.\n");
             return -1;  
         } 
 
-        configAlarm(alarmState);
+        configAlarm();
         
         
         int nBytes = 0; 
@@ -43,7 +46,8 @@ int llopen(LinkLayer parameters) {
                 int bytes = writeBytesSerialPort(frame, BUF_SIZE);
             sleep(1);
             printf("%d bytes written to serial port\n", bytes);
-            enableAlarm(parameters); // Set alarm to be triggered in 3s
+            
+            enableAlarm(timeout); // Set alarm to be triggered in 3s
             alarmState.alarmEnabled = TRUE;
         }
             // read byte
@@ -58,7 +62,7 @@ int llopen(LinkLayer parameters) {
             printf("nBytes= %d\n", nBytes); 
             if ( nBytes == 5 && byte == FLAG) {
                 printf("All bytes read.\n");
-                disableAlarm(alarmState); 
+                disableAlarm(); 
                 break; 
             }
         } else {

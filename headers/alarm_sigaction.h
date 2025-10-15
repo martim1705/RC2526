@@ -4,7 +4,6 @@
 #include <unistd.h> 
 
 #include "../macros/const.h"
-#include "data_link.h"
  
 typedef struct {
     int alarmEnabled; 
@@ -12,10 +11,10 @@ typedef struct {
 } alarmStates; 
 
 
-void alarmHandler(int signal, alarmStates alarmState);
+void alarmHandler(int signal);
 
-void configAlarm(alarmStates alarmState);
+void configAlarm();
 
-void disableAlarm(alarmStates alarmState);
+void disableAlarm();
 
-void enableAlarm(LinkLayer layer);
+void enableAlarm(int timeout);

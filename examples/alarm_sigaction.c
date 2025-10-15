@@ -23,7 +23,7 @@ void configAlarm() {
         alarmCount++;
 
         printf("Alarm #%d received\n", alarmCount);
-}
+    }
 
 
     struct sigaction act = {0};
