@@ -159,6 +159,10 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
 }
 
 int llread(unsigned char *packet) { // reads all frames 
+    if (parameters.role == LlTx) {
+        printf("Receiver was not passed in llread().\n");
+        return -1; 
+    }
     if (packet == NULL) {
         printf("packet is NULL.\n"); 
         return -1; 
@@ -171,14 +175,14 @@ int llread(unsigned char *packet) { // reads all frames
 
 
     while (current_state != ST_STOP) { // While current_state is not the last
-                
+        
         int r = readByteSerialPort(&byte); 
         bytesRead++; 
         if (r == 1) {  
                 change_state(byte, &current_state); //stage changes 
         }
         else if (r < 0) { 
-            perror("No byte was read in receiver serialPort."); 
+            perror("ERROR - No byte was read in receiver serialPort.\n"); 
             break; 
         }
     }
