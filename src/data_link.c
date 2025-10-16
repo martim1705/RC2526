@@ -159,5 +159,24 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
 }
 
 int llread(unsigned char *packet) {
+    if (packet == NULL) {
+        printf("packet is NULL.\n"); 
+        return -1; 
+    }
 
+
+    unsigned char byte; 
+    int current_state = ST_START;
+
+    while (current_state != ST_STOP) { // While current_state is not the last
+                
+        int r = readByteSerialPort(&byte); 
+        if (r == 1) { // while a SET byte is read 
+                change_state(byte, &current_state); //stage changes 
+        }
+        else if (r < 0) { 
+            perror("No byte was read in receiver serialPort."); 
+            break; 
+        }
+    }
 }
