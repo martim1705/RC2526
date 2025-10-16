@@ -158,7 +158,7 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
     }
 }
 
-int llread(unsigned char *packet) {
+int llread(unsigned char *packet) { // reads all frames 
     if (packet == NULL) {
         printf("packet is NULL.\n"); 
         return -1; 
@@ -167,11 +167,14 @@ int llread(unsigned char *packet) {
 
     unsigned char byte; 
     int current_state = ST_START;
+    int bytesRead = 0; // n of bytes that were read
+
 
     while (current_state != ST_STOP) { // While current_state is not the last
                 
         int r = readByteSerialPort(&byte); 
-        if (r == 1) { // while a SET byte is read 
+        bytesRead++; 
+        if (r == 1) {  
                 change_state(byte, &current_state); //stage changes 
         }
         else if (r < 0) { 
@@ -179,4 +182,5 @@ int llread(unsigned char *packet) {
             break; 
         }
     }
+    return bytesRead; 
 }
