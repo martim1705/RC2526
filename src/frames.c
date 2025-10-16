@@ -2,7 +2,7 @@
 
 
 
-int create_SET(unsigned char *frame) {
+int create_SET(unsigned char *frame) { // create a SET frame 
     
     frame[0] = FLAG;
     frame[1] = A_SND;
@@ -13,7 +13,7 @@ int create_SET(unsigned char *frame) {
 
 }
 
-int create_UA(unsigned char *frame) {
+int create_UA(unsigned char *frame) { // create a UA frame 
     
     frame[0] = FLAG; 
     frame[1] = A_RCV; 
