@@ -48,7 +48,7 @@ int llopen(LinkLayer parameters) { // NOT TESTED
             printf("%d bytes written to serial port\n", bytes);
             
             enableAlarm(timeout); // Set alarm to be triggered in 3s
-            alarmEnabled = TRUE;
+            //alarmEnabled = TRUE;
         }
             // read byte
             
@@ -156,4 +156,8 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
             }
         }
     }
+}
+
+int llread(unsigned char *packet) {
+
 }
