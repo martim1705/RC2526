@@ -24,7 +24,7 @@ int llopen(LinkLayer parameters) {
     unsigned char *frame; // used to create UA or SET 
      
     
-    if (!parameters.role) {
+    if (parameters.role == LlTx) { // if its transmitter
         
         int timeout = parameters.timeout;
         
@@ -69,7 +69,7 @@ int llopen(LinkLayer parameters) {
         }
             }
         
-        } else if (parameters.role) {
+        } else if (parameters.role == LlRx) { // if its receiver
             
             // receive SET - first step with state machine implemented 
             
@@ -120,13 +120,12 @@ int llclose();
 
 
 int llwrite(const unsigned char *buf, int bufSize) {
-    if (bufSize < 0) {
-        printf("bufSize must be equal to buffer size. Currently bufSize is equal to %d\n",bufSize);
+    if (bufSize < 0 || buf == NULL) {
+        printf("NULL pointer passed or impossible bufsize value passed.\n");
         return -1; 
     }
 
-    if (buf == NULL) {
-        printf("buf was passed as a null pointer.\n");
-        return -1; 
-    }
+    
+
+    
 }
