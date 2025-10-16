@@ -8,7 +8,7 @@
 #include "../macros/const.h"
 #include <stdio.h>
 
- 
+ LinkLayer parameters; 
 
 int llopen(LinkLayer parameters) {
 
@@ -27,6 +27,7 @@ int llopen(LinkLayer parameters) {
     if (parameters.role == LlTx) { // if its transmitter
         
         int timeout = parameters.timeout;
+        int nRetransmissions = parameters.nRetransmissions; 
         
         if (create_SET(frame) != BUF_SIZE) {
             printf("SET Frame was incorrectly set up.\n");
@@ -39,7 +40,7 @@ int llopen(LinkLayer parameters) {
         int nBytes = 0; 
 
 
-        while (alarmCount < parameters.nRetransmissions) 
+        while (alarmCount < nRetransmissions) 
         {
             if (!alarmEnabled) {
                 int bytes = writeBytesSerialPort(frame, BUF_SIZE);
@@ -125,7 +126,34 @@ int llwrite(const unsigned char *buf, int bufSize) {
         return -1; 
     }
 
-    
+    int timeout = parameters.timeout;
+    int nRetransmissions = parameters.nRetransmissions;
 
-    
+    configAlarm();
+
+    int nBytes = 0;
+
+    while (alarmCount < nRetransmissions) {
+        if (!alarmEnabled) {
+            int bytes = writeBytesSerialPort(&buf, bufSize);
+            sleep(1);
+            printf("%d bytes written to serial port\n", bytes);
+            
+            enableAlarm(timeout); // Set alarm to be triggered in timeout seconds
+            alarmEnabled = TRUE;
+        }
+
+        unsigned char byte;
+
+        if (readByteSerialPort(&byte) == 1) { // read supervision byte
+            nBytes += 1;
+            printf("Byte read: 0x%02X\n", byte);
+            printf("nBytes= %d\n", nBytes); 
+            if ( nBytes == bufSize && byte == FLAG) {
+                printf("All bytes read.\n");
+                disableAlarm(); 
+                break; 
+            }
+        }
+    }
 }
