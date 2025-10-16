@@ -10,7 +10,7 @@
 
  LinkLayer parameters; 
 
-int llopen(LinkLayer parameters) {
+int llopen(LinkLayer parameters) { // NOT TESTED
 
     
 
@@ -120,7 +120,7 @@ int llclose();
     
 
 
-int llwrite(const unsigned char *buf, int bufSize) {
+int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
     if (bufSize < 0 || buf == NULL) {
         printf("NULL pointer passed or impossible bufsize value passed.\n");
         return -1; 
