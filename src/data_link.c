@@ -163,7 +163,7 @@ int llread(unsigned char *packet) { // reads all frames
         printf("packet is NULL.\n"); 
         return -1; 
     }
-
+    
 
     unsigned char byte; 
     int current_state = ST_START;

@@ -5,6 +5,6 @@
 int create_SET(unsigned char *frame); 
 int create_UA(unsigned char *frame); 
 int create_Iframe(unsigned char *frame); 
-
+int checkIFrame(unsigned char *frame)
 
 #endif
