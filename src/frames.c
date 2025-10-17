@@ -49,3 +49,8 @@ int checkIFrame(unsigned char *frame, int frameSize) { // checks if frame with l
     return 1; 
 
 }
+
+
+int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame
+    unsigned char* frame[]; 
+} 

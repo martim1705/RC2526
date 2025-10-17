@@ -18,3 +18,5 @@
 
 #define BAUDRATE 38400
 #define BUF_SIZE 5
+
+#define MAX_PAYLOAD_SIZE 1000
