@@ -51,6 +51,27 @@ int checkIFrame(unsigned char *frame, int frameSize) { // checks if frame with l
 }
 
 
-int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame
-    unsigned char* frame[]; 
+int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame bufSize is the size of the data!! 
+    if (bufSize > MAX_PAYLOAD_SIZE) {
+        printf("The size of the array is more than the max payload size.\n");
+        return -1; 
+    }
+    unsigned char frame[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; // worst case possible all bytes need byte stuffing 
+    
+    frame[0] = FLAG; 
+    frame[1] = A_SND; 
+    frame[2] = C_SND; 
+    frame[3] = A_SND ^ C_SND; 
+    
+    unsigned char bcc2 = 0x00; 
+
+    for (int i = 0; i < bufSize; i++) {
+        bcc2 ^= data[i]; 
+        frame[4 + i] = data[i]; 
+    }
+
+    frame[4 + bufSize] = bcc2; 
+    frame[5+bufSize] = FLAG; 
+
+    return bufSize + 6;     
 } 
