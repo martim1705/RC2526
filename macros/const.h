@@ -7,8 +7,11 @@
 //Control bytes 
 #define C_SND 0x03
 #define C_RCV 0x07
+#define C_DISC 0x0B
 #define BCC_SND (A_SND ^C_SND)
 #define BCC_RCV (A_RCV ^C_RCV)
+#define BCC_DISC_TX (A_SND ^C_DISC)
+#define BCC_DISC_RX (A_RCV ^C_DISC)
 
 #define FALSE 0
 #define TRUE 1
