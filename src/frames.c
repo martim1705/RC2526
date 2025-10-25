@@ -82,3 +82,13 @@ int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame bufSi
 
     return bufSize + 6;     
 } 
+
+
+int createRR(unsigned char *frame, unsigned char Ns) { // CONTINUE AT HOME!!!!
+    frame[0] = FLAG; 
+    frame[1] = A_SND; 
+    if (Ns) frame[2] = 0xAB; 
+    else frame[2] = 0xAA; 
+    frame[3] = frame[2] ^ frame[1]; 
+    frame[4] = FLAG; 
+}
