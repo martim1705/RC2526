@@ -14,6 +14,8 @@
 #define TRUE 1
 
 
+#define ESC 0x7D
+
 #define _POSIX_SOURCE 1 // POSIX compliant source
 
 #define BAUDRATE 38400

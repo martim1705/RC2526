@@ -8,7 +8,9 @@
 #include "../macros/const.h"
 #include <stdio.h>
 
- LinkLayer parameters; 
+LinkLayer parameters; 
+unsigned char frameNumber;
+
 
 int llopen(LinkLayer parameters) { // NOT TESTED
 
@@ -158,29 +160,23 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
     }
 }
 
-int llread(unsigned char *packet) { // reads all frames 
+int llread(unsigned char *packet) { // validates I frames and puts data in packet.  
     if (packet == NULL) {
         printf("packet is NULL.\n"); 
         return -1; 
     }
     
+     
+    unsigned char llFrameNumber = 0; // might be 0 or 1 
+    
+    while(1) {
+         int result = checkIFrame(A_SND, &llFrameNumber, packet); 
 
-    unsigned char byte; 
-    int current_state = ST_START;
-    int bytesRead = 0; // n of bytes that were read
-
-
-    while (current_state != ST_STOP) { // While current_state is not the last
-                
-        int r = readByteSerialPort(&byte); 
-        bytesRead++; 
-        if (r == 1) {  
-                change_state(byte, &current_state); //stage changes 
-        }
-        else if (r < 0) { 
-            perror("No byte was read in receiver serialPort."); 
-            break; 
-        }
+         if (result > 0) {
+            if (llFrameNumber == frameNumber) {
+                // implement byte de-stuffing
+            }
+         }
     }
-    return bytesRead; 
+    return 0; 
 }

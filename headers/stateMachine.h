@@ -12,6 +12,21 @@ enum State {
     ST_STOP
 };
 
+typedef enum {
+    IF_START, 
+    IF_FLAG_RCV,
+    IF_A_RCV,
+    IF_C_RCV, 
+    IF_BCC1,
+    IF_BCC1_OK,
+    IF_DATA,
+    IF_DATA_ESC,
+    IF_STOP,
+    IF_ERROR_BCC2,
+    IF_ERROR_STUFFING
+} IFrameState;
+
 int change_state(unsigned char byte, int *current_state);
 
+IFrameState updateIFrameState(IFrameState state, unsigned char byte, unsigned char expectedAddress, unsigned char frameNumber);  
 #endif

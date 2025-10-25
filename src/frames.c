@@ -1,6 +1,6 @@
 #include "../headers/frames.h"
 
-
+ 
 
 int create_SET(unsigned char *frame) { // create a SET frame 
     
@@ -23,31 +23,38 @@ int create_UA(unsigned char *frame) { // create a UA frame
     return 5;
 }
 
-int checkIFrame(unsigned char *frame, int frameSize) { // checks if frame with length frameSize is a I frame 
-    if (frameSize < 6) return 0; 
-    if (frame[0] != FLAG || frame[frameSize-1] != FLAG) return 0; 
+int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  
     
-    unsigned char A = frame[1]; 
-    unsigned char C = frame[2];
-    unsigned char BCC1 = frame[3];
+    IFrameState state = IF_START; 
+    unsigned char  confirmBCC = 0; // used to calculate bcc2 
+    int totalBytes = 0; 
+    int idx = 0; 
+    unsigned char byte; 
 
-    if (A != 0x03 && A != 0x01) return 0; 
+    while (state != IF_STOP) {
+        
+        int r = readByteSerialPort(&byte);
+        
+        if (r < 0) return -1; 
 
-    if ((C & 0x01) != 0) return 0; 
+        if (r == 1) {
+            ++totalBytes; 
+            // mudar estado da maquina de estados pra I Frames
+            state = updateIFrameState(state, byte, expectedAddressField, frameNumber);
 
-    if (BCC1 != (A ^ C)) return 0; 
-
-
-    unsigned char c_BCC2 = 0x00; 
-    for (int i = 4; i < (frameSize -2); i++) {
-        c_BCC2 ^= frame[i]; 
+            if (state == IF_BCC1_OK) {
+                // check NS 
+                // if expected Ns 
+                    // parse frame to do the de-stuffing
+                    // compute BCC2 
+                    // if BCC2 correct 
+                        //send rr(ns+1) 
+                        //return frame
+                    //else send REJ(Ns) 
+                // else ignore, or send RR(Ns)  
+            }
+        }
     }
-
-    unsigned char BCC2 = frame[frameSize-2]; 
-    if (BCC2 != c_BCC2) return 0; 
-
-    return 1; 
-
 }
 
 
