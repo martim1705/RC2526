@@ -44,12 +44,9 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
             // mudar estado da maquina de estados pra I Frames
             state = updateIFrameState(state, byte, expectedAddressField, frameNumber);
 
-            if (state == IF_BCC1_OK || state == IF_DATA) {
+            if (state == IF_BCC1_OK) { // if bcc1 is correct 
                 // check NS
-                if (idx >= 0) {
-                    packet[idx++] = byte; // writes byte data into packet . update index . WITHOUT DE-STUFFING
-                }
-                  
+                if (frameNumber == )
             }
             
         }

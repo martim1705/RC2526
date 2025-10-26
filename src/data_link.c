@@ -167,14 +167,14 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
     }
     
 
-    unsigned char llFrameNumber = 0; // might be 0 or 1 
+    unsigned char expectedFrameNumber = 0; // might be 0 or 1 
     
     while(1) {
 
-        int result = checkIFrame(A_SND, &llFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
+        int result = checkIFrame(A_SND, &expectedFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
 
         if (result > 0) {
-            if (llFrameNumber == frameNumber) { // in this case Ns is correct 
+            if (expectedFrameNumber == frameNumber) { // in this case Ns is correct 
                 // implement byte de-stuffing
             } else {
                 continue; // ignore ... 
