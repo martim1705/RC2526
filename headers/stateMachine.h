@@ -17,12 +17,13 @@ typedef enum {
     IF_FLAG_RCV,
     IF_A_RCV,
     IF_C_RCV, 
-    IF_BCC1,
+    IF_BCC1_BAD,
     IF_BCC1_OK,
     IF_DATA,
     IF_DATA_ESC,
     IF_STOP,
-    IF_ERROR_BCC2,
+    IF_BCC2_BAD,
+    IF_BCC2_OK,
     IF_ERROR_STUFFING
 } IFrameState;
 

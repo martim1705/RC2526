@@ -23,6 +23,7 @@ int create_UA(unsigned char *frame) { // create a UA frame
     return 5;
 }
 
+// if returns >= 0 success
 int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  // packet is where data will be stored 
     
     IFrameState state = IF_START; 
@@ -31,7 +32,8 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
     int idx = 0; // Index to track data 
     unsigned char byte; 
 
-    while (state != IF_STOP ) {
+    while (state != IF_STOP && state != IF_BCC1_BAD && state == IF_BCC2_BAD) { // fica a ler, até chegar ao estado final, ou bcc1 errado, ou bcc2 errado 
+        // criar novos estados? provavel...
         
         int r = readByteSerialPort(&byte);
         
@@ -45,7 +47,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
             if (state == IF_BCC1_OK || state == IF_DATA) {
                 // check NS
                 if (idx >= 0) {
-                    packet[idx++] = byte; // writes byte data into packet . update index 
+                    packet[idx++] = byte; // writes byte data into packet . update index . WITHOUT DE-STUFFING
                 }
                   
             }
