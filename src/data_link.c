@@ -183,3 +183,12 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
     }
     return 0; 
 }
+
+// if expected Ns 
+                    // parse frame to do the de-stuffing
+                    // compute BCC2 
+                    // if BCC2 correct 
+                        //send rr(ns+1) 
+                        //return frame
+                    //else send REJ(Ns) 
+                // else ignore, or send RR(Ns)

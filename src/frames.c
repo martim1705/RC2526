@@ -28,10 +28,10 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
     IFrameState state = IF_START; 
     unsigned char  confirmBCC = 0; // used to calculate bcc2 
     int totalBytes = 0; 
-    int idx = 0; 
+    int idx = 0; // Index to track data 
     unsigned char byte; 
 
-    while (state != IF_STOP) {
+    while (state != IF_STOP ) {
         
         int r = readByteSerialPort(&byte);
         
@@ -42,17 +42,14 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
             // mudar estado da maquina de estados pra I Frames
             state = updateIFrameState(state, byte, expectedAddressField, frameNumber);
 
-            if (state == IF_BCC1_OK) {
-                // check NS 
-                // if expected Ns 
-                    // parse frame to do the de-stuffing
-                    // compute BCC2 
-                    // if BCC2 correct 
-                        //send rr(ns+1) 
-                        //return frame
-                    //else send REJ(Ns) 
-                // else ignore, or send RR(Ns)  
+            if (state == IF_BCC1_OK || state == IF_DATA) {
+                // check NS
+                if (idx >= 0) {
+                    packet[idx++] = byte; // writes byte data into packet . update index 
+                }
+                  
             }
+            
         }
     }
     return totalBytes; 
