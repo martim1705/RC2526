@@ -1,10 +1,13 @@
 {
     "files.associations": {
+        "*.embeddedhtml": "html",
         "read_noncanonical.h": "c",
         "write_noncanonical.h": "c",
         "alarm_sigaction.h": "c",
         "signal.h": "c",
-        "applicationlayer.h": "c"
+        "applicationlayer.h": "c",
+        "const.h": "c",
+        "statemachine.h": "c"
     },
     "makefile.configureOnOpen": true
 }

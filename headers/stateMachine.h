@@ -5,9 +5,13 @@
 // Machine state states 
 enum State {
     ST_START,
-    ST_FLAG_RCV,
+    ST_FLAG,
     ST_A_RCV,
+    ST_A_SND,
     ST_C_RCV,
+    ST_C_SND,
+    ST_C_DISC_RCV,
+    ST_C_DISC_SND,
     ST_BCC_OK,
     ST_STOP
 };
@@ -28,5 +32,5 @@ typedef enum {
 
 int change_state(unsigned char byte, int *current_state);
 
-IFrameState updateIFrameState(IFrameState state, unsigned char byte, unsigned char expectedAddress, unsigned char frameNumber);  
+IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned char expectedAddress, unsigned char frameNumber);  
 #endif

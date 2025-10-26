@@ -1,4 +1,6 @@
 #include "../headers/frames.h"
+#include "../headers/serial.h"
+#include <stdio.h>
 
  
 
@@ -10,7 +12,6 @@ int create_SET(unsigned char *frame) { // create a SET frame
     frame[3] = BCC_SND;
     frame[4] = FLAG;
     return 5;
-
 }
 
 int create_UA(unsigned char *frame) { // create a UA frame 
@@ -23,13 +24,31 @@ int create_UA(unsigned char *frame) { // create a UA frame
     return 5;
 }
 
+int create_DISC_Tx(unsigned char *frame) {
+    frame[0] = FLAG; 
+    frame[1] = A_SND; 
+    frame[2] = C_DISC;
+    frame[3] = BCC_DISC_TX; 
+    frame[4] = FLAG;
+    return 5;
+}
+
+int create_DISC_Rx(unsigned char *frame) {
+    frame[0] = FLAG; 
+    frame[1] = A_RCV; 
+    frame[2] = C_DISC;
+    frame[3] = BCC_DISC_RX; 
+    frame[4] = FLAG;
+    return 5;
+}
+
 int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  
     
     IFrameState state = IF_START; 
-    unsigned char  confirmBCC = 0; // used to calculate bcc2 
+    //unsigned char  confirmBCC = 0; // used to calculate bcc2              variable not being used yet
     int totalBytes = 0; 
-    int idx = 0; 
-    unsigned char byte; 
+    //int idx = 0;                                                          variable not being used yet
+    unsigned char byte;
 
     while (state != IF_STOP) {
         
@@ -40,7 +59,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
         if (r == 1) {
             ++totalBytes; 
             // mudar estado da maquina de estados pra I Frames
-            state = updateIFrameState(state, byte, expectedAddressField, frameNumber);
+            state = updateIFrameState(state, byte, expectedAddressField, *frameNumber);
 
             if (state == IF_BCC1_OK) {
                 // check NS 
@@ -55,6 +74,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
             }
         }
     }
+    return 0;
 }
 
 
@@ -63,7 +83,7 @@ int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame bufSi
         printf("The size of the array is more than the max payload size.\n");
         return -1; 
     }
-    unsigned char frame[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; // worst case possible all bytes need byte stuffing 
+    unsigned char frame[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; // worst case possible all bytes need byte stuffing
     
     frame[0] = FLAG; 
     frame[1] = A_SND; 
@@ -90,5 +110,6 @@ int createRR(unsigned char *frame, unsigned char Ns) { // CONTINUE AT HOME!!!!
     if (Ns) frame[2] = 0xAB; 
     else frame[2] = 0xAA; 
     frame[3] = frame[2] ^ frame[1]; 
-    frame[4] = FLAG; 
+    frame[4] = FLAG;
+    return 5;
 }

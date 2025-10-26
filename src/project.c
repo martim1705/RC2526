@@ -52,8 +52,8 @@ int main(int argc, char *argv[]) {
            baudrate, TIMEOUT, NTRANSMISSIONS);
 
     appConfig(serialPort, role, baudrate, TIMEOUT, NTRANSMISSIONS);
-    // if (!strcmp(serialPort, "/dev/pts/3")) run_receiver(argc, argv); // llread()
-    // else if (!strcmp(serialPort, "/dev/pts/2")) run_sender(argc, argv); // llwrite()
+    //if (!strcmp(serialPort, "/dev/pts/3")) run_receiver(argc, argv); // llread()
+    //else if (!strcmp(serialPort, "/dev/pts/2")) run_sender(argc, argv); // llwrite()
 
     return 0; 
 }
