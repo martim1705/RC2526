@@ -23,7 +23,7 @@ int create_UA(unsigned char *frame) { // create a UA frame
     return 5;
 }
 
-int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  
+int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  // packet is where data will be stored 
     
     IFrameState state = IF_START; 
     unsigned char  confirmBCC = 0; // used to calculate bcc2 
@@ -55,6 +55,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
             }
         }
     }
+    return totalBytes; 
 }
 
 
