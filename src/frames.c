@@ -156,7 +156,7 @@ int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame bufSi
 } 
 
 
-int createRR(unsigned char *frame, unsigned char Ns, int code) { // CONTINUE AT HOME!!!!
+int createResponse(unsigned char *frame, unsigned char Ns, int code) { // CONTINUE AT HOME!!!!
     
     frame[0] = FLAG;
     frame[1] = A_RCV; 
@@ -166,9 +166,12 @@ int createRR(unsigned char *frame, unsigned char Ns, int code) { // CONTINUE AT 
         else frame[2] = 0xAA;  
         
     } else if (code == -5) {
-        if (Ns) frame[2] = 0x55; 
-        else frame[2] = 0x54;  
+        if (Ns) frame[2] = 0x54; 
+        else frame[2] = 0x55;  
 
+    } else if (code > 0) {
+        if (Ns) frame[2] = 0xAB;
+        else frame[2] = 0xAA; 
     } else {
         printf("Invalid code for RR/REJ creation: %d\n", code);
         return 0; // error
@@ -176,10 +179,15 @@ int createRR(unsigned char *frame, unsigned char Ns, int code) { // CONTINUE AT 
     
     frame[3] = frame[1] ^ frame[2];
     frame[4] = FLAG;
-    return 1; // success
+
+    printf("Created %s frame for Ns=%d\n",
+           (code == -5 ? "REJ" : "RR"), Ns);
+
+
+    return 5; // success
 }
 
-int sendRR(unsigned char *frame) {
+int sendResponse(unsigned char *frame) {
 
     int send = writeBytesSerialPort(frame, 5); 
     if (send == 5) return 1; // success
