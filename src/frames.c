@@ -56,64 +56,69 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
             }
             
             if (state == IF_BCC1_OK) {
+                //ns = (control >> 6) & 0x01;
+                //if (*frameNumber != ns) { // se a trama é duplicada, proceder a retornar erro!! 
+                //    printf("Frame is duplicated!\n"); 
+                //    return -2; 
+                //}
+                //else {
+                unsigned char confirmBCC2 = 0; 
+                int idx = 0;  
+                int escaped = 0; // 0 = falso 
+                
+                while (1) {
+                    r = readByteSerialPort(&byte); 
+                    if (r < 0) return -1; 
+                    if (byte == FLAG) {
+                        if (confirmBCC2 == 0) { // confirmBCC2 == 0 porque (D1 XOR D2 XOR ...XOR DN) XOR BCC2 == 0
+                            state = IF_BCC2_OK;  
+                        } else {
+                            state = IF_BCC2_BAD;  
+                        }
+                        break;
+                    }
+                    if (!escaped && byte == ESC) {
+                        escaped = 1;
+                        continue; 
+                    }
+                    if (escaped) {
+                        if (byte == 0x5E) byte = 0x7E; 
+                        else if (byte == 0x5D) byte = 0x7D; 
+                        else {
+                            printf("byte stuffing wrong.\n"); 
+                            return -3; 
+                        }
+                        escaped = 0; 
+                    }
+                    if (idx >= MAX_PAYLOAD_SIZE) {
+                        printf("Payload size exceeded!\n");
+                        return -4;
+                    }
+                    packet[idx++] = byte; 
+                    confirmBCC2 ^= byte; 
+                }
+
                 ns = (control >> 6) & 0x01;
-                if (*frameNumber == ns) { // se a trama é duplicada, proceder a retornar erro!! 
-                    printf("Frame is duplicated!\n"); 
-                    return -2; 
+
+
+                if (state == IF_BCC2_OK) {
+                    // send RR 
+                    if (ns == *frameNumber) {
+                        *frameNumber = !(*frameNumber);
+                        return idx;
+                    } // success
+                    else continue;  // BCC2 is correct, but frame is a duplicate -> ignore 
+                } 
+
+                if (state == IF_BCC2_BAD) { // bcc2 is incorrect 
+                    if (ns == *frameNumber) return -5; // frame is not a duplicate, but is rejected -> discard data & send REJ 
+                    else return -2;// bcc2 is incorrect and frame is duplicate -> discard data & send RR 
                 }
-                else {
-                    unsigned char confirmBCC2 = 0; 
-                    int idx = 0;  
-                    int escaped = 0; // 0 = falso 
-                    
-                    while (1) {
-                        r = readByteSerialPort(&byte); 
-                        if (r < 0) return -1; 
-
-                        if (byte == FLAG) {
-                            if (confirmBCC2 == 0) {
-                                state = IF_BCC2_OK; 
-                                break; 
-                            } else {
-                                state = IF_BCC2_BAD; 
-                                break; 
-                            }
-                        }
-
-                        if (!escaped && byte == ESC) {
-                            escaped = 1;
-                            continue; 
-                        }
-
-                        if (escaped) {
-                            if (byte == 0x5E) byte = 0x7E; 
-                            else if (byte == 0x5D) byte = 0x7D; 
-                            else {
-                                printf("byte stuffing wrong.\n"); 
-                                return -3; 
-                            }
-                            escaped = 0; 
-                        }
-                        if (idx >= MAX_PAYLOAD_SIZE) {
-                            printf("Payload size exceeded!\n");
-                            return -4;
-                        }
-                        packet[idx++] = byte; 
-                        confirmBCC2 ^= byte; 
-                    }
-
-                    if (state == IF_BCC2_OK) {
-                        *frameNumber = !(*frameNumber); 
-                        return idx; 
-                    } else if (state == IF_BCC2_BAD) {
-                        printf("BCC2 is wrong.\n"); 
-                        return -5; 
-                    }
-                }
+                
             } 
 
             if (state == IF_BCC1_BAD) {
-                return -7; // retornar -1 significa que bcc1 foi incorretamente calculado! ! 
+                return -7; // retornar -1 significa que bcc1 foi incorretamente calculado!! Enviar REJ  
             }
             
         }

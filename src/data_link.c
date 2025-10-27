@@ -172,7 +172,8 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
     while(1) {
 
         int result = checkIFrame(A_SND, &expectedFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
-        // > 0 sucesso, packet contem o payload (1000 bytes) 
+        
+        // >= 0 sucesso, packet contem o payload (1000 bytes) 
         // -1 leitura errada na porta série 
         // -2 frame duplicada 
         // -3 byte stuffing não foi concluido com sucesso 
@@ -180,14 +181,26 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
         // -5 bcc2 está errado 
         // -6 a função deixou de funcionar inesperadamente 
         // -7 bcc1 está errado, máquina de estados atingiu estado "mau"
-        if (result > 0) {
-            if (expectedFrameNumber == frameNumber) { // in this case Ns is correct 
-                // implement byte de-stuffing
-            } else {
-                continue; // ignore ... 
-                // or send RR(Ns) 
-            }
-         }
+        
+        if (result > 0) { // send rr(Ns+1)
+            
+        } else if (result == -1) {
+            printf("Byte could not be read correctly from the serial port.\n"); 
+        } else if (result == -2) { // send RR(Ns)  
+            printf("Frame sent is duplicated.\n"); 
+        } else if (result == -3) {
+            printf("Byte Stuffing detected an error.\n");
+        } else if (result == -4) {
+            printf("Size of data is too much for the current payload size limit.\n"); 
+        } else if (result == -5) { // implement rejection 
+            printf("BCC2 is incorrect.\n");
+        } else if (result == -6) {
+            printf("I Frame could not be processed.\n"); 
+        } else { 
+            printf("BCC1 is incorrect.\n");
+            continue;  
+        }
+
     }
     return 0; 
 }
