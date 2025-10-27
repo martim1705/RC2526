@@ -130,7 +130,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
 }
 
 
-int createIFrame(unsigned char *data, int bufSize, unsigned char *frame) { // creates the IFrame . bufSize is the size of the data!! 
+int createIFrame(unsigned char *data, int bufSize, unsigned char *frame, unsigned char ns) { // NOT DONE . MAJOR MISTAKE!! FRAME[2] IS WRONG. IT MUST BE NS = O OR 1 NOT C_SND!!  
     if (bufSize > MAX_PAYLOAD_SIZE || bufSize < 0) {
         printf("The payload size is invalid.Must be less than %d bytes.\n", MAX_PAYLOAD_SIZE);
         return -1; 
@@ -138,8 +138,8 @@ int createIFrame(unsigned char *data, int bufSize, unsigned char *frame) { // cr
     
     frame[0] = FLAG; 
     frame[1] = A_SND; 
-    frame[2] = C_SND; 
-    frame[3] = A_SND ^ C_SND; 
+    frame[2] = ns; 
+    frame[3] = A_SND ^ ns; 
     
     unsigned char bcc2 = 0; 
     int idx = 4; 
@@ -177,7 +177,7 @@ int createIFrame(unsigned char *data, int bufSize, unsigned char *frame) { // cr
 
 
 
-int createResponse(unsigned char *frame, unsigned char Ns, int code) { // CONTINUE AT HOME!!!!
+int createResponse(unsigned char *frame, unsigned char Ns, int code) { 
     
     frame[0] = FLAG;
     frame[1] = A_RCV; 
@@ -213,4 +213,13 @@ int sendResponse(unsigned char *frame) {
         printf("Error: could not write to serial port.\n");
         return 0;
     } else return 0; //error 
+}
+
+
+int readResponse(unsigned char *frame) { // returns a number corresponding to rr or rej (0 not successful, 1 = rr, and 2 = rej) 
+    if (frame == NULL) {
+        return 0; 
+    }
+
+    return 1; 
 }

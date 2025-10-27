@@ -10,7 +10,7 @@
 
 LinkLayer parameters; 
 unsigned char frameNumber;
-
+unsigned char ns = 0x00; // 0x00 or 0x80
 
 int llopen(LinkLayer parameters) { // NOT TESTED
 
@@ -130,7 +130,7 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
     }
     unsigned char Iframe[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; //
 
-    int createFrame = createIFrame(buf, bufSize, Iframe); 
+    int createFrame = createIFrame(buf, bufSize, Iframe, ns); 
     
     if (createFrame < 0) {
         printf("I Frame was not created.\n");
@@ -153,6 +153,13 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
             enableAlarm(timeout); // Set alarm to be triggered in timeout seconds
             alarmEnabled = TRUE;
         }
+
+        // read if it is RR or REJ 
+        unsigned char byte; 
+        int read = readByteSerialPort(&byte); 
+        // ver se e rej ou rr 
+
+        
     }
 }
 
