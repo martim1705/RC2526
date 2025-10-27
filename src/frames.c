@@ -156,11 +156,32 @@ int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame bufSi
 } 
 
 
-int createRR(unsigned char *frame, unsigned char Ns) { // CONTINUE AT HOME!!!!
-    frame[0] = FLAG; 
-    frame[1] = A_SND; 
-    if (Ns) frame[2] = 0xAB; 
-    else frame[2] = 0xAA; 
-    frame[3] = frame[2] ^ frame[1]; 
-    frame[4] = FLAG; 
+int createRR(unsigned char *frame, unsigned char Ns, int code) { // CONTINUE AT HOME!!!!
+    
+    frame[0] = FLAG;
+    frame[1] = A_RCV; 
+    
+    if (code == -2) {  
+        if (Ns) frame[2] = 0xAB; 
+        else frame[2] = 0xAA;  
+        
+    } else if (code == -5) {
+        if (Ns) frame[2] = 0x55; 
+        else frame[2] = 0x54;  
+
+    } else {
+        printf("Invalid code for RR/REJ creation: %d\n", code);
+        return 0; // error
+    }
+    
+    frame[3] = frame[1] ^ frame[2];
+    frame[4] = FLAG;
+    return 1; // success
+}
+
+int sendRR(unsigned char *frame) {
+
+    int send = writeBytesSerialPort(frame, 5); 
+    if (send == 5) return 1; // success
+    else return 0; //error 
 }

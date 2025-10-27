@@ -168,7 +168,7 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
     
 
     unsigned char expectedFrameNumber = 0; // might be 0 or 1 
-    
+    unsigned char *response[5]; 
     while(1) {
 
         int result = checkIFrame(A_SND, &expectedFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
@@ -188,6 +188,8 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
             printf("Byte could not be read correctly from the serial port.\n"); 
         } else if (result == -2) { // send RR(Ns)  
             printf("Frame sent is duplicated.\n"); 
+            createResponse(response, &expectedFrameNumber, int code); // created rr frame 
+            sendResponse(response); // send rr response  
         } else if (result == -3) {
             printf("Byte Stuffing detected an error.\n");
         } else if (result == -4) {
