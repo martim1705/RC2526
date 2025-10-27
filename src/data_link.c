@@ -127,37 +127,13 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
         printf("NULL pointer passed or impossible bufsize value passed.\n");
         return -1; 
     }
+    unsigned char *Iframe[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; //
 
-    int timeout = parameters.timeout;
-    int nRetransmissions = parameters.nRetransmissions;
-
-    configAlarm();
-
-    int nBytes = 0;
-
-    while (alarmCount < nRetransmissions) {
-        if (!alarmEnabled) {
-            int bytes = writeBytesSerialPort(&buf, bufSize);
-            sleep(1);
-            printf("%d bytes written to serial port\n", bytes);
-            
-            enableAlarm(timeout); // Set alarm to be triggered in timeout seconds
-            alarmEnabled = TRUE;
-        }
-
-        unsigned char byte;
-
-        if (readByteSerialPort(&byte) == 1) { // read supervision byte
-            nBytes += 1;
-            printf("Byte read: 0x%02X\n", byte);
-            printf("nBytes= %d\n", nBytes); 
-            if ( nBytes == bufSize && byte == FLAG) {
-                printf("All bytes read.\n");
-                disableAlarm(); 
-                break; 
-            }
-        }
+    int createFrame = createIFrame(Iframe, bufSize); 
+    if (createFrame < 0) {
+        printf("I Frame was not created.\n"); 
     }
+    
 }
 
 int llread(unsigned char *packet) { // validates I frames and puts data in packet.  
@@ -208,11 +184,33 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
     return 0; 
 }
 
-// if expected Ns 
-                    // parse frame to do the de-stuffing
-                    // compute BCC2 
-                    // if BCC2 correct 
-                        //send rr(ns+1) 
-                        //return frame
-                    //else send REJ(Ns) 
-                // else ignore, or send RR(Ns)
+/*int timeout = parameters.timeout;
+    int nRetransmissions = parameters.nRetransmissions;
+
+    configAlarm();
+
+    int nBytes = 0;
+
+    while (alarmCount < nRetransmissions) {
+        if (!alarmEnabled) {
+            int bytes = writeBytesSerialPort(&buf, bufSize);
+            sleep(1);
+            printf("%d bytes written to serial port\n", bytes);
+            
+            enableAlarm(timeout); // Set alarm to be triggered in timeout seconds
+            alarmEnabled = TRUE;
+        }
+
+        unsigned char byte;
+
+        if (readByteSerialPort(&byte) == 1) { // read supervision byte
+            nBytes += 1;
+            printf("Byte read: 0x%02X\n", byte);
+            printf("nBytes= %d\n", nBytes); 
+            if ( nBytes == bufSize && byte == FLAG) {
+                printf("All bytes read.\n");
+                disableAlarm(); 
+                break; 
+            }
+        }
+    }*/

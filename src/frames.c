@@ -130,29 +130,49 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
 }
 
 
-int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame bufSize is the size of the data!! 
-    if (bufSize > MAX_PAYLOAD_SIZE) {
-        printf("The size of the array is more than the max payload size.\n");
+int createIFrame(unsigned char *data, int bufSize, unsigned char *frame, int frameSize) { // creates the IFrame . bufSize is the size of the data!! 
+    if (bufSize > MAX_PAYLOAD_SIZE || bufSize < 0) {
+        printf("The payload size is invalid.Must be less than %d bytes.\n", MAX_PAYLOAD_SIZE);
         return -1; 
     }
-    unsigned char frame[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; // worst case possible all bytes need byte stuffing 
     
     frame[0] = FLAG; 
     frame[1] = A_SND; 
     frame[2] = C_SND; 
     frame[3] = A_SND ^ C_SND; 
     
-    unsigned char bcc2 = 0x00; 
-
+    unsigned char bcc2 = 0; 
+    int idx = 4; 
     for (int i = 0; i < bufSize; i++) {
-        bcc2 ^= data[i]; 
-        frame[4 + i] = data[i]; 
+        if (data[i] == FLAG) {
+            frame[idx++] = 0x7D;   
+            frame[idx++] = 0x5E;
+
+        } else if (data[i] == ESC) {
+            frame[idx++] = 0x7D;  
+            frame[idx++] = 0x5D;
+        } else {
+            frame[idx++] = data[i]; 
+        }
+        bcc2 ^= data[i];
+
     }
 
-    frame[4 + bufSize] = bcc2; 
-    frame[5+bufSize] = FLAG; 
+    if (bcc2 == FLAG) {
+        frame[idx++] = 0x7D;   
+        frame[idx++] = 0x5E; 
 
-    return bufSize + 6;     
+    } else if (bcc2 == ESC) {
+        frame[idx++] = 0x7D;  
+        frame[idx++] = 0x5D;
+
+    } else {
+        frame[idx++] = bcc2; 
+    }
+    
+    frame[idx++] = FLAG; 
+
+    return idx;     
 } 
 
 
