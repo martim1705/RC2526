@@ -172,7 +172,14 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
     while(1) {
 
         int result = checkIFrame(A_SND, &expectedFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
-
+        // > 0 sucesso, packet contem o payload (1000 bytes) 
+        // -1 leitura errada na porta série 
+        // -2 frame duplicada 
+        // -3 byte stuffing não foi concluido com sucesso 
+        // -4 tamanho do payload é > 1000 bytes 
+        // -5 bcc2 está errado 
+        // -6 a função deixou de funcionar inesperadamente 
+        // -7 bcc1 está errado, máquina de estados atingiu estado "mau"
         if (result > 0) {
             if (expectedFrameNumber == frameNumber) { // in this case Ns is correct 
                 // implement byte de-stuffing

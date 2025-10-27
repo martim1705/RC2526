@@ -27,13 +27,13 @@ int create_UA(unsigned char *frame) { // create a UA frame
 int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  // packet is where data will be stored 
     
     IFrameState state = IF_START; 
-    unsigned char address; 
+    //unsigned char address; 
     unsigned char control;  
-    int totalBytes = 0;  
+    //int totalBytes = 0;  
     unsigned char byte; 
     unsigned char ns;
     
-    while (state != IF_STOP && state != IF_BCC1_BAD && state == IF_BCC2_BAD) { // fica a ler, até chegar ao estado final, ou bcc1 errado, ou bcc2 errado 
+    while (state != IF_STOP && state != IF_BCC1_BAD && state != IF_BCC2_BAD) { // fica a ler, até chegar ao estado final, ou bcc1 errado, ou bcc2 errado 
         
         
         int r = readByteSerialPort(&byte);
@@ -41,12 +41,12 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
         if (r < 0) return -1; 
 
         if (r == 1) {
-            ++totalBytes; 
+            //++totalBytes; 
             // mudar estado da maquina de estados pra I Frames
             state = updateIFrameState(state, &byte, expectedAddressField, frameNumber);
 
-            if (state == IF_A_RCV && byte != FLAG) {
-                address = byte;
+            if (state == IF_A_RCV) {
+                //address = byte;
                 continue; 
             }
 
@@ -57,7 +57,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
             
             if (state == IF_BCC1_OK) {
                 ns = (control >> 6) & 0x01;
-                if (*frameNumber != ns) { // se a trama não é duplicada, proceder à leitura dos dados!! 
+                if (*frameNumber == ns) { // se a trama é duplicada, proceder a retornar erro!! 
                     printf("Frame is duplicated!\n"); 
                     return -2; 
                 }
@@ -87,26 +87,41 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
 
                         if (escaped) {
                             if (byte == 0x5E) byte = 0x7E; 
-                            else if (byte == 0X5D) byte = 0x7D; 
+                            else if (byte == 0x5D) byte = 0x7D; 
                             else {
                                 printf("byte stuffing wrong.\n"); 
                                 return -3; 
                             }
                             escaped = 0; 
                         }
+                        if (idx >= MAX_PAYLOAD_SIZE) {
+                            printf("Payload size exceeded!\n");
+                            return -4;
+                        }
                         packet[idx++] = byte; 
                         confirmBCC2 ^= byte; 
                     }
+
+                    if (state == IF_BCC2_OK) {
+                        *frameNumber = !(*frameNumber); 
+                        return idx; 
+                    } else if (state == IF_BCC2_BAD) {
+                        printf("BCC2 is wrong.\n"); 
+                        return -5; 
+                    }
                 }
-            }
+            } 
 
             if (state == IF_BCC1_BAD) {
-                return -1; // retornar -1 significa que bcc1 foi incorretamente calculado! ! 
+                return -7; // retornar -1 significa que bcc1 foi incorretamente calculado! ! 
             }
             
         }
-    }
-    return totalBytes; 
+        
+    } 
+    printf("checkIFrame ended unexpectedly.\n");
+    return -6;
+
 }
 
 
