@@ -19,8 +19,6 @@ typedef enum {
     IF_C_RCV, 
     IF_BCC1_BAD,
     IF_BCC1_OK,
-    IF_DATA,
-    IF_DATA_ESC,
     IF_STOP,
     IF_BCC2_BAD,
     IF_BCC2_OK,
