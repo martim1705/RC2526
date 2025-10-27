@@ -11,4 +11,5 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNuber, u
 int createIFrame(unsigned char *data, int bufSize, unsigned char *frame);
 int createResponse(unsigned char *frame, unsigned char Ns, int code); 
 int sendResponse(unsigned char *frame);
+int sendIFrame(unsigned char *frame, int bufSize); 
 #endif

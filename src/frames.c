@@ -176,6 +176,7 @@ int createIFrame(unsigned char *data, int bufSize, unsigned char *frame) { // cr
 } 
 
 
+
 int createResponse(unsigned char *frame, unsigned char Ns, int code) { // CONTINUE AT HOME!!!!
     
     frame[0] = FLAG;

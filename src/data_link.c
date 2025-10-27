@@ -123,19 +123,37 @@ int llclose();
 
 
 int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
+    
     if (bufSize < 0 || buf == NULL) {
         printf("NULL pointer passed or impossible bufsize value passed.\n");
         return -1; 
     }
-    unsigned char *Iframe[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; //
+    unsigned char Iframe[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; //
 
-    int createFrame = createIFrame(buf, bufSize, &Iframe); 
+    int createFrame = createIFrame(buf, bufSize, Iframe); 
     
     if (createFrame < 0) {
         printf("I Frame was not created.\n");
         return -1;  
     } 
+
+    // config alarm 
+    int timeout = parameters.timeout;
+    int nRetransmissions = parameters.nRetransmissions;
+    int nBytes = 0;
     
+    configAlarm(); 
+
+    while (alarmCount < nRetransmissions) {
+        if (!alarmEnabled) {
+            int bytes = writeBytesSerialPort(Iframe, createFrame);
+            sleep(1);
+            printf("%d bytes written to serial port\n", bytes);
+            
+            enableAlarm(timeout); // Set alarm to be triggered in timeout seconds
+            alarmEnabled = TRUE;
+        }
+    }
 }
 
 int llread(unsigned char *packet) { // validates I frames and puts data in packet.  
