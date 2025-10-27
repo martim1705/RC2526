@@ -27,13 +27,15 @@ int create_UA(unsigned char *frame) { // create a UA frame
 int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  // packet is where data will be stored 
     
     IFrameState state = IF_START; 
-    unsigned char  confirmBCC = 0; // used to calculate bcc2 
+    unsigned char address; // used to calculate bcc2 and bcc1
+    unsigned char control;  
     int totalBytes = 0; 
     int idx = 0; // Index to track data 
     unsigned char byte; 
-
+    unsigned char ns;
+    
     while (state != IF_STOP && state != IF_BCC1_BAD && state == IF_BCC2_BAD) { // fica a ler, até chegar ao estado final, ou bcc1 errado, ou bcc2 errado 
-        // criar novos estados? provavel...
+        
         
         int r = readByteSerialPort(&byte);
         
@@ -42,11 +44,27 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
         if (r == 1) {
             ++totalBytes; 
             // mudar estado da maquina de estados pra I Frames
-            state = updateIFrameState(state, byte, expectedAddressField, frameNumber);
+            state = updateIFrameState(state, &byte, expectedAddressField, frameNumber);
 
-            if (state == IF_BCC1_OK) { // if bcc1 is correct 
-                // check NS
-                if (frameNumber == )
+            if (state == IF_A_RCV && byte != FLAG) {
+                address = byte;
+                continue; 
+            }
+
+            if (state == IF_C_RCV) {
+                control = byte;
+                ns = (control >> 6) & 0x01; // check if ns is correct 
+                continue;
+            }
+            
+            if (state == IF_BCC1_OK) {
+                if (frameNumber == ns) { // se a trama não é duplicada, proceder à leitura dos dados!! 
+
+                }
+            }
+
+            if (state == IF_BCC1_BAD) {
+                return -1; // retornar -1 significa que bcc1 foi incorretamente calculado! ! 
             }
             
         }

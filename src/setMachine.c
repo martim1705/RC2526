@@ -103,6 +103,13 @@ IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned c
                 return IF_DATA;
             }
         
+
+        case IF_BCC1_BAD: 
+            printf("bcc1 wrong.\n"); // nao esquecer de tirar esta porra 
+            return IF_DATA; 
+
+
+            
         case IF_DATA: 
             
             if (byte == FLAG) {

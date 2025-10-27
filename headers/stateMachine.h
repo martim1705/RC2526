@@ -24,7 +24,8 @@ typedef enum {
     IF_STOP,
     IF_BCC2_BAD,
     IF_BCC2_OK,
-    IF_ERROR_STUFFING
+    IF_ERROR_STUFFING,
+    IF_DUPLICATE
 } IFrameState;
 
 int change_state(unsigned char byte, int *current_state);
