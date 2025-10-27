@@ -190,6 +190,9 @@ int createResponse(unsigned char *frame, unsigned char Ns, int code) { // CONTIN
 int sendResponse(unsigned char *frame) {
 
     int send = writeBytesSerialPort(frame, 5); 
-    if (send == 5) return 1; // success
-    else return 0; //error 
+    if (send == 5) return 1;
+    else if (send < 0) {
+        printf("Error: could not write to serial port.\n");
+        return 0;
+    } else return 0; //error 
 }
