@@ -161,17 +161,14 @@ int createResponse(unsigned char *frame, unsigned char Ns, int code) { // CONTIN
     frame[0] = FLAG;
     frame[1] = A_RCV; 
     
-    if (code == -2) {  
+    if (code == -2 || code > 0) {  
         if (Ns) frame[2] = 0xAB; 
         else frame[2] = 0xAA;  
         
     } else if (code == -5) {
         if (Ns) frame[2] = 0x54; 
         else frame[2] = 0x55;  
-
-    } else if (code > 0) {
-        if (Ns) frame[2] = 0xAB;
-        else frame[2] = 0xAA; 
+         
     } else {
         printf("Invalid code for RR/REJ creation: %d\n", code);
         return 0; // error
