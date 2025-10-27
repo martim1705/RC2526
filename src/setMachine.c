@@ -109,12 +109,11 @@ IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned c
             return IF_DATA; 
 
 
-            
+
         case IF_DATA: 
             
-            if (byte == FLAG) {
-                return IF_STOP; 
-            } else if (byte == ESC) {
+         
+            if (byte == ESC) {
                 return IF_DATA_ESC; 
             } else {
                 return IF_DATA;

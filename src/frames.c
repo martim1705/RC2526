@@ -27,10 +27,9 @@ int create_UA(unsigned char *frame) { // create a UA frame
 int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  // packet is where data will be stored 
     
     IFrameState state = IF_START; 
-    unsigned char address; // used to calculate bcc2 and bcc1
+    unsigned char address; 
     unsigned char control;  
-    int totalBytes = 0; 
-    int idx = 0; // Index to track data 
+    int totalBytes = 0;  
     unsigned char byte; 
     unsigned char ns;
     
@@ -52,14 +51,52 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
             }
 
             if (state == IF_C_RCV) {
-                control = byte;
-                ns = (control >> 6) & 0x01; // check if ns is correct 
+                control = byte; 
                 continue;
             }
             
             if (state == IF_BCC1_OK) {
-                if (frameNumber == ns) { // se a trama não é duplicada, proceder à leitura dos dados!! 
+                ns = (control >> 6) & 0x01;
+                if (*frameNumber != ns) { // se a trama não é duplicada, proceder à leitura dos dados!! 
+                    printf("Frame is duplicated!\n"); 
+                    return -2; 
+                }
+                else {
+                    unsigned char confirmBCC2 = 0; 
+                    int idx = 0;  
+                    int escaped = 0; // 0 = falso 
+                    
+                    while (1) {
+                        r = readByteSerialPort(&byte); 
+                        if (r < 0) return -1; 
 
+                        if (byte == FLAG) {
+                            if (confirmBCC2 == 0) {
+                                state = IF_BCC2_OK; 
+                                break; 
+                            } else {
+                                state = IF_BCC2_BAD; 
+                                break; 
+                            }
+                        }
+
+                        if (!escaped && byte == ESC) {
+                            escaped = 1;
+                            continue; 
+                        }
+
+                        if (escaped) {
+                            if (byte == 0x5E) byte = 0x7E; 
+                            else if (byte == 0X5D) byte = 0x7D; 
+                            else {
+                                printf("byte stuffing wrong.\n"); 
+                                return -3; 
+                            }
+                            escaped = 0; 
+                        }
+                        packet[idx++] = byte; 
+                        confirmBCC2 ^= byte; 
+                    }
                 }
             }
 
