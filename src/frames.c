@@ -130,7 +130,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
 }
 
 
-int createIFrame(unsigned char *data, int bufSize, unsigned char *frame, int frameSize) { // creates the IFrame . bufSize is the size of the data!! 
+int createIFrame(unsigned char *data, int bufSize, unsigned char *frame) { // creates the IFrame . bufSize is the size of the data!! 
     if (bufSize > MAX_PAYLOAD_SIZE || bufSize < 0) {
         printf("The payload size is invalid.Must be less than %d bytes.\n", MAX_PAYLOAD_SIZE);
         return -1; 

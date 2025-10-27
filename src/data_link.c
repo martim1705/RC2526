@@ -129,10 +129,12 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
     }
     unsigned char *Iframe[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; //
 
-    int createFrame = createIFrame(Iframe, bufSize); 
+    int createFrame = createIFrame(buf, bufSize, &Iframe); 
+    
     if (createFrame < 0) {
-        printf("I Frame was not created.\n"); 
-    }
+        printf("I Frame was not created.\n");
+        return -1;  
+    } 
     
 }
 
