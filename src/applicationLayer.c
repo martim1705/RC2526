@@ -59,15 +59,15 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
 
     if (parameters.role == LlTx) {
         
-        FILE *file = fopen(filename, "rb");
+        FILE *file = fopen(filename, "r");
         
-        long int fileSize = getFileSize(filename); // returns the size of filename 
+        long int fileSize = getFileSize(file); // returns the size of filename 
         
         if (fileSize < 0) {
             return; 
         }    
         
-        int CpacketSize = buildControlPacketunsigned(Cpacket, filename, fileSize, 1); // returns the size of the START control packet 
+        int CpacketSize = buildControlPacket(Cpacket, filename, fileSize, 1); // returns the size of the START control packet 
         
         if ( CpacketSize < 0) {
             printf("Could not contruct START Control packet.\n"); 
@@ -88,7 +88,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
             return; 
         }
 
-        CpacketSize = buildControlPacketunsigned(Cpacket, filename, fileSize,3); 
+        CpacketSize = buildControlPacket(Cpacket, filename, fileSize,3); 
         
         if ( CpacketSize < 0) {
             printf("Could not contruct END Control packet.\n"); 
@@ -118,7 +118,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
         }
 
         if (readControlPacket(packet, &fileSize, packetSize, filename) < 0) {
-            printf("Coulr not read START packet.\n"); 
+            printf("Could not read START packet.\n"); 
             return; 
         }
 
@@ -145,15 +145,15 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
             }
 
             else if (C == 3) {
-                pritnf("END packet received.\n"); 
+                printf("END packet received.\n"); 
                 break; 
             } else {
                 printf("unidentified packet.\n"); 
             }
         }
-        fclose(filename); 
+        fclose(file); 
         printf("Success"); 
     }
     
-
+    llclose(parameters); 
 }

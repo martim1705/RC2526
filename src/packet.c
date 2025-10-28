@@ -82,6 +82,7 @@ int buildDataPacket(unsigned char *packet, unsigned char *data, int dataSize, un
 
 int readControlPacket(unsigned char *packet, long int *fileSize, int packetSize, char *filename) {
     
+    if (filename == NULL || packet == NULL || fileSize == NULL ) {printf("arguments passed are null pointer.\n");return -1;}
     int i = 1;
     while (i < packetSize) {
         unsigned char T = packet[i++]; // t1 t2
@@ -96,5 +97,5 @@ int readControlPacket(unsigned char *packet, long int *fileSize, int packetSize,
         i += L; 
     }
 
-    return 0; 
+    return 1; 
 }

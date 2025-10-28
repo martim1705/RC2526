@@ -130,7 +130,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
 }
 
 
-int createIFrame(unsigned char *data, int bufSize, unsigned char *frame, unsigned char ns) { // NOT DONE . MAJOR MISTAKE!! FRAME[2] IS WRONG. IT MUST BE NS = O OR 1 NOT C_SND!!  
+int createIFrame(const unsigned char *data, int bufSize, unsigned char *frame, unsigned char ns) { // NOT DONE . MAJOR MISTAKE!! FRAME[2] IS WRONG. IT MUST BE NS = O OR 1 NOT C_SND!!  
     if (bufSize > MAX_PAYLOAD_SIZE || bufSize < 0) {
         printf("The payload size is invalid.Must be less than %d bytes.\n", MAX_PAYLOAD_SIZE);
         return -1; 
