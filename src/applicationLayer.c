@@ -6,9 +6,13 @@
 #include <string.h>
 
 
-void appConfig(const char *serialPort, const char* role, int baudrate, int timeout, int nretransmissions) {
+void appConfig(const char *serialPort, const char* role, int baudrate, int timeout, int nretransmissions, const char* filename) {
     
-    
+    if (filename == NULL | serialPort == NULL || role == NULL) {
+        printf("filename, serialPort, or role parameters were passed as NULL.\n");
+        return; 
+    }
+
     LinkLayer parameters; 
     strcpy(parameters.serialPort, serialPort);
     parameters.baudrate = baudrate; 
@@ -20,8 +24,12 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
         parameters.role = LlRx; 
     }
 
+    
+
     if (llopen(parameters) < 0) {
         printf("Error calling llopen().\n"); 
         return; 
     }
 }
+
+
