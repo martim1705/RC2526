@@ -158,7 +158,7 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
         unsigned char byte; 
         int read = readByteSerialPort(&byte); 
         // ver se e rej ou rr 
-
+        // usar readResponse() -> identifica que resposta foi dada pelo recetor. a partir do output, age de maneira diferente 
         
     }
 }
