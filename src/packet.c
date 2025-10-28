@@ -1,13 +1,7 @@
 #include "../headers/packet.h"
 
-long int openFile(const char *filename) {
+long int getFileSize(FILE *file) {
     
-    FILE *file = fopen(filename, "rb"); 
-
-    if (file == NULL) {
-        printf("%s was not successfully opened.\n", filename);
-        return -1;  
-    }
 
     if (fseek(file, 0L, SEEK_END)) {
         printf("Pointer error.\n");
@@ -60,4 +54,27 @@ int buildControlPacket(unsigned char *packet, const char *filename, long int fil
     return ind; 
 }
 
-int buildDataPacket
+int buildDataPacket(unsigned char *packet, unsigned char *data, int dataSize, unsigned char seqNum) {
+    
+    if (packet == NULL || data == NULL) {
+        printf("Null pointer passed to buildDataPacket.\n");
+        return -1;
+    }
+
+    if (dataSize > MAX_PAYLOAD_SIZE) {
+        printf("Payload too large (max = %d bytes).\n", MAX_PAYLOAD_SIZE);
+        return -1;
+    }   
+
+    int ind = 0; 
+
+    packet[ind++] = 2; 
+    packet[ind++] = seqNum;
+    packet[ind++] = (dataSize >> 8) & 0XFF; 
+    packet[ind++] = dataSize & 0xFF; 
+
+    memcpy(&packet[ind], data, dataSize);
+    ind += dataSize;  
+
+    return ind; 
+}
