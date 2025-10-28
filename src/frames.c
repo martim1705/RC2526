@@ -217,9 +217,31 @@ int sendResponse(unsigned char *frame) {
 
 
 int readResponse(unsigned char *frame) { // returns a number corresponding to rr or rej (0 not successful, 1 = rr, and 2 = rej) 
-    if (frame == NULL) {
+    if (frame == NULL || frame[0] != FLAG || frame[4] != FLAG) {
+        // TRAMA INVALIDA
         return 0; 
     }
+    
+    unsigned char A = frame[1]; 
+    unsigned char C = frame[2]; 
+    unsigned char BCC1 = frame[3]; 
 
-    return 1; 
+    if (BCC1 != (A ^ C)) {
+        return -2; 
+    }
+
+    if (C == 0xAA) {
+        return ; //RR(0)
+    } else if (C == 0xAB) {
+        // RR(1)
+        return; 
+    } else if (C == 0X54) {
+        // REJ(0) 
+        return ; 
+    } else if (C == 0x55) {
+        //REJ(1) 
+        return ; 
+    } 
+
+    return 0; 
 }
