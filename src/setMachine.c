@@ -11,58 +11,47 @@
  
 
 int change_state(unsigned char byte, int *current_state) {
-    
-    int nBytesBuf = 0;
-
-
 
     switch(*current_state) {
         case ST_START:
             if (byte == FLAG) {
                 *current_state = ST_FLAG;
-            } 
+            }
             break;
         case ST_FLAG:
         
-            if (byte == A_SND) {
-                *current_state = ST_A_SND; 
-            } else if (byte == A_RCV){
-                *current_state = ST_A_RCV;
+            if (byte == A_Tx) {
+                *current_state = ST_A_Tx; 
+            } else if (byte == A_Rx){
+                *current_state = ST_A_Rx;
             } else if (byte == FLAG) {
                 *current_state = ST_FLAG; 
             } else {
                 *current_state = ST_START; 
             }
             break; 
-        case ST_A_SND:
-            if (byte == C_SND) {
-                *current_state = ST_C_SND;
+        case ST_A_Tx:
+            if (byte == C_SET) {
+                *current_state = ST_C_SET_Tx;
+            } else if (byte == C_UA) {
+                *current_state = ST_C_UA_Tx;
             } else if (byte == C_DISC) {
-                *current_state = ST_C_DISC_SND;
+                *current_state = ST_C_DISC_Tx;
             } else if (byte == FLAG){
                 *current_state = ST_FLAG;
             } else {*current_state = ST_START;}
                 break;
-        case ST_A_RCV:
-            if (byte == C_RCV) {
-                *current_state = ST_C_RCV;
+        case ST_A_Rx:
+            if (byte == C_UA) {
+                *current_state = ST_C_UA_Rx;
             } else if (byte == C_DISC) {
-                *current_state = ST_C_DISC_RCV;
+                *current_state = ST_C_DISC_Rx;
             } else if (byte == FLAG) {
                 *current_state = ST_FLAG; 
             } else {*current_state = ST_START;}
                 break;
-        case ST_C_SND:
-            if (byte == BCC_SND) {
-                *current_state = ST_BCC_OK; 
-            } else if (byte == FLAG) {
-                *current_state = ST_FLAG; 
-            } else {
-                *current_state = ST_START; 
-            }
-                break; 
-        case ST_C_RCV:
-            if (byte == BCC_SND) {
+        case ST_C_SET_Tx:
+            if (byte == BCC_SET_Tx) {
                 *current_state = ST_BCC_OK; 
             } else if (byte == FLAG) {
                 *current_state = ST_FLAG; 
@@ -70,8 +59,26 @@ int change_state(unsigned char byte, int *current_state) {
                 *current_state = ST_START; 
             }
                 break;
-        case ST_C_DISC_RCV:
-            if (byte == BCC_DISC_RX) {
+        case ST_C_UA_Tx:
+            if (byte == BCC_UA_Tx) {
+                *current_state = ST_BCC_OK; 
+            } else if (byte == FLAG) {
+                *current_state = ST_FLAG; 
+            } else {
+                *current_state = ST_START; 
+            }
+                break;
+        case ST_C_UA_Rx:
+            if (byte == BCC_UA_Rx) {
+                *current_state = ST_BCC_OK; 
+            } else if (byte == FLAG) {
+                *current_state = ST_FLAG; 
+            } else {
+                *current_state = ST_START; 
+            }
+                break;
+        case ST_C_DISC_Rx:
+            if (byte == BCC_DISC_Rx) {
                 *current_state = ST_BCC_OK; 
             } else if (byte == FLAG) {
                 *current_state = ST_FLAG; 
@@ -79,8 +86,8 @@ int change_state(unsigned char byte, int *current_state) {
                 *current_state = ST_START; 
             }
                 break; 
-        case ST_C_DISC_SND:
-            if (byte == BCC_DISC_TX) {
+        case ST_C_DISC_Tx:
+            if (byte == BCC_DISC_Tx) {
                 *current_state = ST_BCC_OK; 
             } else if (byte == FLAG) {
                 *current_state = ST_FLAG; 
@@ -101,11 +108,6 @@ int change_state(unsigned char byte, int *current_state) {
             printf("Impossible state reached.");
             break;
     }
-    nBytesBuf += 1; 
-    if (*current_state != 5)
-    readByteSerialPort(&byte);
-    printf("Total bytes received: %d\n", nBytesBuf);
-
     return 0;
 }
 

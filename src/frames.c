@@ -7,37 +7,49 @@
 int create_SET(unsigned char *frame) { // create a SET frame 
     
     frame[0] = FLAG;
-    frame[1] = A_SND;
-    frame[2] = C_SND;
-    frame[3] = BCC_SND;
+    frame[1] = A_Tx;
+    frame[2] = C_SET;
+    frame[3] = BCC_SET_Tx;
     frame[4] = FLAG;
     return 5;
 }
 
-int create_UA(unsigned char *frame) { // create a UA frame 
+int create_UA_Rx(unsigned char *frame) { // create a UA frame 
     
     frame[0] = FLAG; 
-    frame[1] = A_RCV; 
-    frame[2] = C_RCV;
-    frame[3] = BCC_RCV; 
+    frame[1] = A_Rx; 
+    frame[2] = C_UA;
+    frame[3] = BCC_UA_Rx; 
+    frame[4] = FLAG; 
+    return 5;
+}
+
+int create_UA_Tx(unsigned char *frame) { // create a UA frame 
+    
+    frame[0] = FLAG; 
+    frame[1] = A_Tx; 
+    frame[2] = C_UA;
+    frame[3] = BCC_UA_Tx; 
     frame[4] = FLAG; 
     return 5;
 }
 
 int create_DISC_Tx(unsigned char *frame) {
+
     frame[0] = FLAG; 
-    frame[1] = A_SND; 
+    frame[1] = A_Tx; 
     frame[2] = C_DISC;
-    frame[3] = BCC_DISC_TX; 
+    frame[3] = BCC_DISC_Tx; 
     frame[4] = FLAG;
     return 5;
 }
 
 int create_DISC_Rx(unsigned char *frame) {
+
     frame[0] = FLAG; 
-    frame[1] = A_RCV; 
+    frame[1] = A_Rx; 
     frame[2] = C_DISC;
-    frame[3] = BCC_DISC_RX; 
+    frame[3] = BCC_DISC_Rx; 
     frame[4] = FLAG;
     return 5;
 }
@@ -86,9 +98,9 @@ int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame bufSi
     unsigned char frame[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; // worst case possible all bytes need byte stuffing
     
     frame[0] = FLAG; 
-    frame[1] = A_SND; 
-    frame[2] = C_SND; 
-    frame[3] = A_SND ^ C_SND; 
+    frame[1] = A_Tx; 
+    frame[2] = C_SET; 
+    frame[3] = A_Tx ^ C_SET; 
     
     unsigned char bcc2 = 0x00; 
 
@@ -106,7 +118,7 @@ int createIFrame(unsigned char *data, int bufSize) { // creates the IFrame bufSi
 
 int createRR(unsigned char *frame, unsigned char Ns) { // CONTINUE AT HOME!!!!
     frame[0] = FLAG; 
-    frame[1] = A_SND; 
+    frame[1] = A_Tx; 
     if (Ns) frame[2] = 0xAB; 
     else frame[2] = 0xAA; 
     frame[3] = frame[2] ^ frame[1]; 

@@ -1,17 +1,18 @@
 // FLAG byte
 #define FLAG 0x7E
 // Address bytes 
-#define A_SND 0x03 
-#define A_RCV 0x01
+#define A_Tx 0x03 
+#define A_Rx 0x01
 
 //Control bytes 
-#define C_SND 0x03
-#define C_RCV 0x07
+#define C_SET 0x03
+#define C_UA 0x07
 #define C_DISC 0x0B
-#define BCC_SND (A_SND ^C_SND)
-#define BCC_RCV (A_RCV ^C_RCV)
-#define BCC_DISC_TX (A_SND ^C_DISC)
-#define BCC_DISC_RX (A_RCV ^C_DISC)
+#define BCC_SET_Tx (A_Tx ^C_SET)
+#define BCC_UA_Rx (A_Rx ^C_UA)
+#define BCC_UA_Tx (A_Tx ^C_UA)
+#define BCC_DISC_Tx (A_Tx ^C_DISC)
+#define BCC_DISC_Rx (A_Rx ^C_DISC)
 #define FALSE 0
 #define TRUE 1
 
