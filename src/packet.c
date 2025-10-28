@@ -78,3 +78,23 @@ int buildDataPacket(unsigned char *packet, unsigned char *data, int dataSize, un
 
     return ind; 
 }
+
+
+int readControlPacket(unsigned char *packet, long int *fileSize, int packetSize, char *filename) {
+    
+    int i = 1;
+    while (i < packetSize) {
+        unsigned char T = packet[i++]; // t1 t2
+        unsigned char L = packet[i++]; // l1 l2 
+
+        if (T == 0) {
+            memcpy(fileSize, &packet[i], L); 
+        } else if (T == 1) {
+            memcpy(fileSize, &packet[i], L); 
+            filename[L] = '\0'; 
+        }
+        i += L; 
+    }
+
+    return 0; 
+}

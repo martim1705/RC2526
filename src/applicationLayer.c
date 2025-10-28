@@ -98,8 +98,61 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
         llwrite(Cpacket, CpacketSize); 
 
         fclose(file); 
-    } else {
+    } else { // receiver 
 
+        unsigned char packet[MAX_PAYLOAD_SIZE + 4]; 
+        int packetSize; 
+        char filename[256];
+        long int fileSize = 0; 
+        
+        packetSize = llread(packet); 
+
+        if (packetSize < 0) {
+            printf("START packet was not read.\n");
+            return;  
+        }
+
+        if (packet[0] != 1) {
+            printf("Expected START packet.\n"); 
+            return; 
+        }
+
+        if (readControlPacket(packet, &fileSize, packetSize, filename) < 0) {
+            printf("Coulr not read START packet.\n"); 
+            return; 
+        }
+
+        FILE *file = fopen(filename, "w");
+        if (file == NULL) {
+            printf("Could not create file named: %s", filename);
+            return;
+        }  
+        
+        while (1) {
+            packetSize = llread(packet); 
+            
+            if (packetSize < 0) {
+                printf("Error reading packet.\n"); 
+                fclose(file); 
+                return; 
+            }
+
+            unsigned char C = packet[0]; 
+
+            if (C == 2) { // DATA PACKET 
+                int dataSize = (packet[2] << 8) | packet[3]; 
+                fwrite(&packet[4], 1, dataSize, file); 
+            }
+
+            else if (C == 3) {
+                pritnf("END packet received.\n"); 
+                break; 
+            } else {
+                printf("unidentified packet.\n"); 
+            }
+        }
+        fclose(filename); 
+        printf("Success"); 
     }
     
 
