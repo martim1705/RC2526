@@ -28,7 +28,7 @@ long int openFile(const char *filename) {
     return res;  
 }
 
-int buildControlPacketunsigned(unsigned char *packet, const char *filename, long int fileSize, int type) {
+int buildControlPacket(unsigned char *packet, const char *filename, long int fileSize, int type) {
     // type pode ser 1 (start) ou 3 (end) 
     if (type != 1 && type != 3) {
         printf("type value is invalid.\n"); 
@@ -53,5 +53,11 @@ int buildControlPacketunsigned(unsigned char *packet, const char *filename, long
     memcpy(&packet[ind], filename, strlen(filename)); 
     ind += strlen(filename); 
 
+
+    printf("Control packet built (%d bytes): type=%d, size=%ld, name=%s\n",
+       ind, type, fileSize, filename);
+
     return ind; 
 }
+
+int buildDataPacket
