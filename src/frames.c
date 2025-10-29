@@ -34,26 +34,7 @@ int create_UA_Tx(unsigned char *frame) { // create a UA frame
     return 5;
 }
 
-int create_DISC_Tx(unsigned char *frame) {
-
-    frame[0] = FLAG; 
-    frame[1] = A_Tx; 
-    frame[2] = C_DISC;
-    frame[3] = BCC_DISC_Tx; 
-    frame[4] = FLAG;
-    return 5;
-}
-
-int create_DISC_Rx(unsigned char *frame) {
-
-    frame[0] = FLAG; 
-    frame[1] = A_Rx; 
-    frame[2] = C_DISC;
-    frame[3] = BCC_DISC_Rx; 
-    frame[4] = FLAG;
-    return 5;
-}
-
+// if returns >= 0 success
 int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  // packet is where data will be stored 
     
     IFrameState state = IF_START; 

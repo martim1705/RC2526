@@ -10,11 +10,12 @@
 
 LinkLayer parameters; 
 unsigned char frameNumber;
+unsigned char ns = 0x00; // 0x00 or 0x80
 
+int llopen(LinkLayer parameters) { // NOT TESTED
 
-int llopen(LinkLayer parameters) { // TESTED
+    
 
-    // Open both ports
     if (openSerialPort(parameters.serialPort, parameters.baudrate) < 0) {
             printf("Serial port opening error.\n");
             return -1; 
@@ -289,22 +290,3 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
             }
         }
     }*/
-
-int checkFrame() {
-    unsigned char byte; 
-    int current_state = ST_START; // INITIAL STATE
-
-    while (current_state != ST_STOP) { // While current_state is not the last
-        
-        int r = readByteSerialPort(&byte); 
-        if (r == 1) { // while a SET byte is read  
-            change_state(byte, &current_state); // stage changes 
-            printf("Byte read: 0x%02X\n", byte);
-        }
-        else if (r < 0) { 
-            perror("No byte was read in receiver serialPort."); 
-            return -1;
-        }
-    }
-    return 0;
-}
