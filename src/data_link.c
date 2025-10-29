@@ -218,6 +218,7 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
         }
         
     }
+    return -1; // error
 }
 
 int llread(unsigned char *packet) { // validates I frames and puts data in packet.  
@@ -253,12 +254,16 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
             sendResponse(response); // send rr response  
         } else if (result == -3) {
             printf("Byte Stuffing detected an error.\n");
+            return -1;
         } else if (result == -4) {
             printf("Size of data is too much for the current payload size limit.\n"); 
+            return -1;
         } else if (result == -5) { // implement rejection REJ(Ns)
             printf("BCC2 is incorrect.\n");
+            return -1;
         } else if (result == -6) {
             printf("I Frame could not be processed.\n"); 
+            return -1;
         } else { 
             printf("BCC1 is incorrect.\n");
             continue;  

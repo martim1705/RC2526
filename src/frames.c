@@ -60,8 +60,8 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *expectedframe
 
             
             if (state == IF_BCC1_OK) {
-                if (realFrameNumber != *frameNumber) {
-                    printf("Frame duplicada recebida! Esperava %d, recebeu %d\n", *frameNumber, prevFrameNumber);
+                if (realFrameNumber != *expectedframeNumber) {
+                    printf("Frame duplicada recebida! Esperava %d, recebeu %d\n", expectedAddressField, realFrameNumber);
                     return -2; // frame duplicada
                 }
                 //ns = (control >> 6) & 0x01;
@@ -83,7 +83,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *expectedframe
                     if (r < 0) return -1; 
                     if (byte == FLAG) {
                         if (!havePrev) {
-                            return ; // no bcc2 received 
+                            return -6; // no bcc2 received 
                         }
 
                         unsigned char bcc2 = prevByte; 
@@ -122,14 +122,17 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *expectedframe
 
 
 
-                if (state == IF_BCC2_OK) {
-                    *frameNumber = !(*frameNumber);
-                    return idx;
-                } 
-                else continue;  // BCC2 is correct, but frame is a duplicate -> ignore 
+                if (state == IF_BCC2_OK ) {
+                    if (*expectedframeNumber == realFrameNumber) {
+                        *expectedframeNumber = !(*expectedframeNumber);
+                        return idx;
+                    }
+                    else return -2;  // BCC2 is correct, but frame is a duplicate -> send rr(ns) 
 
+                } 
+                
                 if (state == IF_BCC2_BAD) { // bcc2 is incorrect 
-                    if (prevFrameNumber == *frameNumber) return -5; // frame is not a duplicate, but is rejected -> discard data & send REJ 
+                    if (realFrameNumber == *expectedframeNumber) return -5; // frame is not a duplicate, but is rejected -> discard data & send REJ 
                     else return -2;// bcc2 is incorrect and frame is duplicate -> discard data & send RR 
                 }
                 
@@ -148,7 +151,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *expectedframe
 }
 
 
-int createIFrame(const unsigned char *data, int bufSize, unsigned char *frame, unsigned char ns) { // NOT DONE . MAJOR MISTAKE!! FRAME[2] IS WRONG. IT MUST BE NS = O OR 1 NOT C_SND!!  
+int createIFrame(const unsigned char *data, int bufSize, unsigned char *frame, unsigned char ns) {   
     if (bufSize > MAX_PAYLOAD_SIZE || bufSize < 0) {
         printf("The payload size is invalid.Must be less than %d bytes.\n", MAX_PAYLOAD_SIZE);
         return -1; 
@@ -245,7 +248,8 @@ int readResponse(unsigned char *frame) { // returns a number corresponding to rr
 
     while (1) {
         int r = readByteSerialPort(&byte);
-        if (byte < 0) {
+        
+        if (r < 0) {
             printf("Byte could not be read.\n");
             return -1;
         }
@@ -300,4 +304,25 @@ int checkFrame() {
         }
     }
     return 0;
+}
+
+
+int create_DISC_Tx(unsigned char *frame) {
+
+    frame[0] = FLAG; 
+    frame[1] = A_Tx; 
+    frame[2] = C_DISC;
+    frame[3] = BCC_DISC_Tx; 
+    frame[4] = FLAG;
+    return 5;
+}
+
+int create_DISC_Rx(unsigned char *frame) {
+
+    frame[0] = FLAG; 
+    frame[1] = A_Rx; 
+    frame[2] = C_DISC;
+    frame[3] = BCC_DISC_Rx; 
+    frame[4] = FLAG;
+    return 5;
 }

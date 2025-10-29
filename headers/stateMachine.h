@@ -37,5 +37,5 @@ typedef enum {
 
 int change_state(unsigned char byte, int *current_state);
 
-IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned char expectedAddress, unsigned char frameNumber, unsigned char realFrameNumber);  
+IFrameState updateIFrameState(unsigned char byte, IFrameState current_state, unsigned char expectedAddress, unsigned char *realFrameNumber);  
 #endif
