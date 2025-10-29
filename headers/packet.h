@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 long int getFileSize(FILE* filename); // returns file size
 int buildControlPacket(unsigned char *packet, const char *filename, long int fileSize, int type); // builds the START packet 

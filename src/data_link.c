@@ -1,12 +1,6 @@
 #include "../headers/data_link.h"
-#include "../headers/alarm_sigaction.h"
-#include "../headers/read_noncanonical.h"
-#include "../headers/write_noncanonical.h"
-#include "../headers/frames.h"
-#include "../headers/serial.h"
-#include "../headers/stateMachine.h"
-#include "../macros/const.h"
-#include <stdio.h>
+
+
 
 LinkLayer parameters; 
 unsigned char frameNumber;
@@ -42,7 +36,7 @@ int llopen(LinkLayer parameters) { // NOT TESTED
             if (!alarmEnabled) {
                 int bytes = writeBytesSerialPort(frame, BUF_SIZE);  // Send SET frame
                 printf("%d bytes written to serial port\n", bytes);
-                sleep(1);
+                //sleep(1);
                 
                 enableAlarm(timeout);                               // Set alarm to be triggered in 3s
 
@@ -79,7 +73,7 @@ int llopen(LinkLayer parameters) { // NOT TESTED
             printf("Bytes written!");
         }
 
-        sleep(1);
+        //sleep(1);
 
     } else return -1; 
     return 0;
@@ -107,7 +101,7 @@ int llclose() { // NOT TESTED
             if (!alarmEnabled) {
                 int bytes = writeBytesSerialPort(frame, BUF_SIZE);  // Send transmitter DISC frame
                 printf("%d bytes written to serial port\n", bytes);
-                sleep(1);
+                // sleep(1);
                 
                 enableAlarm(timeout);                               // Set alarm to be triggered in 3s
 
@@ -153,7 +147,7 @@ int llclose() { // NOT TESTED
             printf("Bytes could not be sent by receiver."); 
             exit(1); 
         }
-        sleep(1);
+        // sleep(1);
 
         // Read UA frame
         if (checkFrame() < 0) {
@@ -189,14 +183,14 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
     // config alarm 
     int timeout = parameters.timeout;
     int nRetransmissions = parameters.nRetransmissions;
-    int nBytes = 0;
+    // int nBytes = 0;
     
     configAlarm(); 
 
     while (alarmCount < nRetransmissions) {
         if (!alarmEnabled) {
             int bytes = writeBytesSerialPort(Iframe, createFrame);
-            sleep(1);
+            // sleep(1);
             printf("%d bytes written to serial port\n", bytes);
             
             enableAlarm(timeout); // Set alarm to be triggered in timeout seconds
@@ -204,10 +198,24 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
         }
 
         // read if it is RR or REJ 
-        unsigned char byte; 
-        int read = readByteSerialPort(&byte); 
-        // ver se e rej ou rr 
-        // usar readResponse() -> identifica que resposta foi dada pelo recetor. a partir do output, age de maneira diferente 
+        unsigned char response[5]; 
+        int res = readResponse(response); 
+        if (res == -1) {
+            return -1; 
+        } else if (res == 0 || res == 1) { // rr(0) or rr(1) 
+            ns = !ns; 
+            alarmEnabled = FALSE; 
+            return bufSize; 
+        } else if (res == 2 || res == 3) { // rej(0)
+            alarmEnabled = FALSE; 
+            alarmCount++; 
+            continue; 
+        } else { // -3 
+            printf("Timout or invalid response - retransmitting.\n"); 
+            alarmCount++; 
+            alarmEnabled = FALSE; 
+            continue; 
+        }
         
     }
 }
@@ -223,7 +231,7 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
     unsigned char response[5]; 
     while(1) {
 
-        int result = checkIFrame(A_SND, &expectedFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
+        int result = checkIFrame(A_Tx, &expectedFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
         
         // >= 0 sucesso, packet contem o payload (1000 bytes) 
         // -1 leitura errada na porta série 

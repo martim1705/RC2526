@@ -54,7 +54,7 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
         if (r == 1) {
             //++totalBytes; 
             // mudar estado da maquina de estados pra I Frames
-            state = updateIFrameState(state, &byte, expectedAddressField, frameNumber);
+            state = updateIFrameState(&byte, state, expectedAddressField, frameNumber);
 
             if (state == IF_A_RCV) {
                 //address = byte;
@@ -148,9 +148,9 @@ int createIFrame(const unsigned char *data, int bufSize, unsigned char *frame, u
     }
     
     frame[0] = FLAG; 
-    frame[1] = A_SND; 
+    frame[1] = A_Tx; 
     frame[2] = ns; 
-    frame[3] = A_SND ^ ns; 
+    frame[3] = A_Tx ^ ns; 
     
     unsigned char bcc2 = 0; 
     int idx = 4; 
@@ -191,7 +191,7 @@ int createIFrame(const unsigned char *data, int bufSize, unsigned char *frame, u
 int createResponse(unsigned char *frame, unsigned char Ns, int code) { 
     
     frame[0] = FLAG;
-    frame[1] = A_RCV; 
+    frame[1] = A_Rx; 
     
     if (code == -2 || code > 0) {  
         if (Ns) frame[2] = 0xAB; 
@@ -227,32 +227,75 @@ int sendResponse(unsigned char *frame) {
 }
 
 
-int readResponse(unsigned char *frame) { // returns a number corresponding to rr or rej (0 not successful, 1 = rr, and 2 = rej) 
-    if (frame == NULL || frame[0] != FLAG || frame[4] != FLAG) {
-        // TRAMA INVALIDA
-        return 0; 
+int readResponse(unsigned char *frame) { // returns a number corresponding to rr or rej 
+    if (frame == NULL) {
+        printf("Passed argument in null pointer.\n"); 
+        return 0;
     }
     
-    unsigned char A = frame[1]; 
-    unsigned char C = frame[2]; 
-    unsigned char BCC1 = frame[3]; 
+    int idx = 0;
+    unsigned char byte;
 
-    if (BCC1 != (A ^ C)) {
-        return -2; 
+    while (1) {
+        int r = readByteSerialPort(&byte);
+        if (byte < 0) {
+            printf("Byte could not be read.\n");
+            return -1;
+        }
+
+        if (byte == FLAG) {
+            if (idx == 0) {
+                frame[idx++] = byte;
+                continue;
+            } else {
+                frame[idx++] = byte;
+                break;
+            }
+        }
+
+        frame[idx++] = byte;  
+
+    }
+     
+    if (frame[0] != FLAG && frame[4] != FLAG) {
+        return -1; 
     }
 
-    if (C == 0xAA) {
-        return ; //RR(0)
-    } else if (C == 0xAB) {
-        // RR(1)
-        return; 
-    } else if (C == 0X54) {
-        // REJ(0) 
-        return ; 
-    } else if (C == 0x55) {
-        //REJ(1) 
-        return ; 
-    } 
+    unsigned char A = frame[1]; 
+    unsigned char C = frame[2]; 
+    unsigned char bcc1 = frame[3]; 
 
-    return 0; 
+    if ((A ^ C) != bcc1) return -3;  // bcc1 incorrect 
+    
+    if (C == 0xAA) return 0; // rr(0) 
+    if (C == 0xAB) return 1; // rr(1) 
+    if (C == 0x54) return 2; // rej(0)
+    if (C == 0x55) return 3; // rej(1)
+
+    return -1; 
+}
+
+
+int checkFrame(unsigned char *frame) {
+    unsigned char byte; 
+    int idx = 0;
+    if (frame == NULL) {
+        return -1; 
+    }
+
+    while (1) {
+        int r = readByteSerialPort(&byte); 
+        if (r < 0) {
+            return -1; 
+        }
+        
+        if (idx == 0 && byte == FLAG) {
+            frame[idx++] = byte; 
+            continue; 
+        } else if (idx == 4 && byte == FLAG) {
+            frame[idx++] = byte; 
+            return; 
+        }
+
+    }
 }

@@ -1,6 +1,14 @@
 #ifndef DATA_LINK_H_
 #define DATA_LINK_H_
 
+#include "../headers/alarm_sigaction.h"
+#include "../headers/frames.h"
+#include "../headers/serial.h"
+#include "../headers/stateMachine.h"
+#include "../macros/const.h"
+
+#include <stdlib.h>
+#include <stdio.h>
 
 typedef enum{
 LlTx, // Act as transmitter
@@ -26,7 +34,6 @@ int llread(unsigned char *packet);
 
 int llclose(); 
 
-int checkFrame();
 
 
 #endif 
