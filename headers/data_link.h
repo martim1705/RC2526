@@ -26,4 +26,7 @@ int llread(unsigned char *packet);
 
 int llclose(); 
 
+int checkFrame();
+
+
 #endif 

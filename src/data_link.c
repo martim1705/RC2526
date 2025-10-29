@@ -12,92 +12,71 @@ LinkLayer parameters;
 unsigned char frameNumber;
 
 
-int llopen(LinkLayer parameters) { // NOT TESTED
+int llopen(LinkLayer parameters) { // TESTED
 
-
+    // Open both ports
     if (openSerialPort(parameters.serialPort, parameters.baudrate) < 0) {
             printf("Serial port opening error.\n");
             return -1; 
-        };  
-
+        };
     printf("Serial port %s opened\n", parameters.serialPort);
 
-    unsigned char frame[BUF_SIZE]; // used to create UA or SET 
-    int current_state = ST_START;
+    // Array used to create SET or UA frames
+    unsigned char frame[BUF_SIZE];
 
     if (parameters.role == LlTx) { // if its transmitter
         
-        int timeout = parameters.timeout;
-        int nRetransmissions = parameters.nRetransmissions; 
-        
+        // Create SET frame
         if (create_SET(frame) != BUF_SIZE) {
             printf("SET Frame was incorrectly set up.\n");
             return -1;  
         } 
 
+        // Send SET frame and read UA frame
         configAlarm();
-        unsigned char byte;
-        
+        int timeout = parameters.timeout;
+        int nRetransmissions = parameters.nRetransmissions; 
+
         while (alarmCount < nRetransmissions) {
             if (!alarmEnabled) {
-                int bytes = writeBytesSerialPort(frame, BUF_SIZE);
-                sleep(1);
+                int bytes = writeBytesSerialPort(frame, BUF_SIZE);  // Send SET frame
                 printf("%d bytes written to serial port\n", bytes);
+                sleep(1);
                 
-                enableAlarm(timeout); // Set alarm to be triggered in 3s
-                //alarmEnabled = TRUE;
-                while (current_state != ST_STOP) { // While current_state is not the last
-                    
-                    int r = readByteSerialPort(&byte); 
-                    if (r == 1) { // while a SET byte is read  
-                        change_state(byte, &current_state); // stage changes
-                        printf("Byte read: 0x%02X\n", byte);
-                    }
-                    else if (r < 0) { 
-                        perror("No byte was read in receiver serialPort."); 
-                        break; 
-                    }
+                enableAlarm(timeout);                               // Set alarm to be triggered in 3s
+
+                if (checkFrame() == 0) {                            // Read UA frame
+                    printf("UA frame received from Receiver.\n");
+                    break;
+                } else {
+                    printf("UA frame was incorrectly set up.\n");
                 }
-                
             }
         } 
 
-        // read byte
-
     } else if (parameters.role == LlRx) { // if its receiver
         
-        // receive SET - first step with state machine implemented 
-        
-        unsigned char byte; 
-
-        while (current_state != ST_STOP) { // While current_state is not the last
-            
-            int r = readByteSerialPort(&byte); 
-            if (r == 1) { // while a SET byte is read  
-                change_state(byte, &current_state);
-                printf("Byte read: 0x%02X\n", byte);
-            }
-            else if (r < 0) { 
-                perror("No byte was read in receiver serialPort."); 
-                break; 
-            }
+        // Receive SET frame
+        if (checkFrame() < 0) {
+            printf("UA frame was incorrectly set up.\n");
+            return -1;
+        } else {
+            printf("SET frame received and read. Starting UA frame creation.\n");
         }
-
-        printf("SET frame received and read. Starting UA frame creation.\n");
         
-        // create UA frame - 2nd step 
+        // Create UA frame
         if (create_UA_Rx(frame) != BUF_SIZE) {
             printf("UA frame was incorrectly set up.\n");
             return -1; 
         }
-        
-        
-        // send UA - third step 
+         
+        // Send UA frame
         if (writeBytesSerialPort(frame, BUF_SIZE) < 0) {
             printf("Bytes could not be sent by sender."); 
             exit(1); 
+        } else {
+            printf("Bytes written!");
         }
-        printf("Bytes written!");
 
         sleep(1);
 
@@ -105,93 +84,90 @@ int llopen(LinkLayer parameters) { // NOT TESTED
     return 0;
 }
      
-int llclose() {
-    if (parameters.role == LlTx) { // if its transmitter
-        unsigned char frame[BUF_SIZE];
-        int timeout = parameters.timeout;
-        int nRetransmissions = parameters.nRetransmissions; 
+int llclose() { // NOT TESTED
 
+    // Array used to create DISC or UA frames
+    unsigned char frame[BUF_SIZE];
+
+    if (parameters.role == LlTx) { // if its transmitter
+
+        // Create transmitter DISC frame
         if (create_DISC_Tx(frame) != BUF_SIZE) {
             printf("DISC Frame was incorrectly set up.\n");
             return -1;  
         }
 
+        // Send transmitter DISC frame and read reveiver DISC frame
         configAlarm();
-        
-        int nBytes = 0; 
+        int timeout = parameters.timeout;
+        int nRetransmissions = parameters.nRetransmissions; 
 
-        while (alarmCount < nRetransmissions) 
-        {
+        while (alarmCount < nRetransmissions) {
             if (!alarmEnabled) {
-                int bytes = writeBytesSerialPort(frame, BUF_SIZE);
-                sleep(1);
+                int bytes = writeBytesSerialPort(frame, BUF_SIZE);  // Send transmitter DISC frame
                 printf("%d bytes written to serial port\n", bytes);
+                sleep(1);
                 
-                enableAlarm(timeout); // Set alarm to be triggered in 3s
-                //alarmEnabled = TRUE;
-            }
-                // read byte   
-            
-            unsigned char byte;
+                enableAlarm(timeout);                               // Set alarm to be triggered in 3s
 
-            if (readByteSerialPort(&byte) == 1) {
-                nBytes += 1;
-                printf("Byte read: 0x%02X\n", byte);
-                printf("nBytes= %d\n", nBytes); 
-                if ( nBytes == 5 && byte == FLAG) {
-                    printf("All bytes read.\n");
-                    disableAlarm(); 
-                    break; 
+                if (checkFrame() == 0) {                            // Read reveiver DISC frame
+                    printf("DISC frame received from Receiver.\n");
+                    break;
+                } else {
+                    printf("UA frame was incorrectly set up.\n");
                 }
-            } else {
-                printf("Byte not read.\n"); 
-            }
+            } 
         }
+
+        // Create UA frame
         if (create_UA_Tx(frame) != BUF_SIZE) {
             printf("UA Frame was incorrectly set up.\n");
             return -1;
         }
-        writeBytesSerialPort(frame, BUF_SIZE);
-    } else if (parameters.role == LlRx) {
-        unsigned char frame[BUF_SIZE];
-        unsigned char byte; 
-        int current_state = ST_START; // INITIAL STATE
 
-        while (current_state != ST_STOP) { // While current_state is not the last
-            
-            int r = readByteSerialPort(&byte); 
-            if (r == 1) { // while a SET byte is read  
-
-                change_state(byte, &current_state); // stage changes 
-            }
-            else if (r < 0) { 
-                perror("No byte was read in receiver serialPort."); 
-                break;
-            }
-        }
-        if (create_DISC_Rx(frame) != BUF_SIZE) {
-            printf("UA frame was incorrectly set up.\n");
-            return -1; 
-        }
-        
-        
-        // send UA - third step 
+        // Send UA frame
         if (writeBytesSerialPort(frame, BUF_SIZE) < 0) {
             printf("Bytes could not be sent by sender."); 
             exit(1); 
         }
-        printf("Bytes written!");
 
+    } else if (parameters.role == LlRx) { // if its receiver
+        
+        // Read transmitter DISC frame
+        if (checkFrame() < 0) {
+            printf("Transmitter DISC frame was incorrectly set up.\n");
+            return -1;
+        } else {
+            printf("Transmitter DISC frame was received.\n");
+        }
+
+        // Create receiver DISC frame
+        if (create_DISC_Rx(frame) != BUF_SIZE) {
+            printf("Receiver DISC frame was incorrectly set up.\n");
+            return -1; 
+        }
+        
+        // Send receiver DISC frame
+        if (writeBytesSerialPort(frame, BUF_SIZE) < 0) {
+            printf("Bytes could not be sent by receiver."); 
+            exit(1); 
+        }
         sleep(1);
 
+        // Read UA frame
+        if (checkFrame() < 0) {
+            printf("UA frame was incorrectly set up.\n");
+            return -1;
+        } else {
+            printf("UA received, all Done\n");
+        }
+
+    } else {
+        return -1;
     }
     return 0;
 }
 
-
-
-
-    
 
 
 int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
@@ -255,4 +231,24 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
          }
     }
     return 0; 
+}
+
+
+int checkFrame() {
+    unsigned char byte; 
+    int current_state = ST_START; // INITIAL STATE
+
+    while (current_state != ST_STOP) { // While current_state is not the last
+        
+        int r = readByteSerialPort(&byte); 
+        if (r == 1) { // while a SET byte is read  
+            change_state(byte, &current_state); // stage changes 
+            printf("Byte read: 0x%02X\n", byte);
+        }
+        else if (r < 0) { 
+            perror("No byte was read in receiver serialPort."); 
+            return -1;
+        }
+    }
+    return 0;
 }

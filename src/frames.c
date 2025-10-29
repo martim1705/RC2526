@@ -9,7 +9,7 @@ int create_SET(unsigned char *frame) { // create a SET frame
     frame[0] = FLAG;
     frame[1] = A_Tx;
     frame[2] = C_SET;
-    frame[3] = BCC_SET_Tx;
+    frame[3] = BCC_SET;
     frame[4] = FLAG;
     return 5;
 }

@@ -8,7 +8,7 @@
 #define C_SET 0x03
 #define C_UA 0x07
 #define C_DISC 0x0B
-#define BCC_SET_Tx (A_Tx ^C_SET)
+#define BCC_SET (A_Tx ^C_SET)
 #define BCC_UA_Rx (A_Rx ^C_UA)
 #define BCC_UA_Tx (A_Tx ^C_UA)
 #define BCC_DISC_Tx (A_Tx ^C_DISC)

@@ -51,7 +51,7 @@ int change_state(unsigned char byte, int *current_state) {
             } else {*current_state = ST_START;}
                 break;
         case ST_C_SET_Tx:
-            if (byte == BCC_SET_Tx) {
+            if (byte == BCC_SET) {
                 *current_state = ST_BCC_OK; 
             } else if (byte == FLAG) {
                 *current_state = ST_FLAG; 
