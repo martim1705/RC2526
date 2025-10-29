@@ -171,12 +171,95 @@ int llclose() { // NOT TESTED
 
 
 int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
+    
     if (bufSize < 0 || buf == NULL) {
         printf("NULL pointer passed or impossible bufsize value passed.\n");
         return -1; 
     }
+    unsigned char Iframe[5 + 2 * (MAX_PAYLOAD_SIZE + 1)]; //
 
+    int createFrame = createIFrame(buf, bufSize, Iframe, ns); 
+    
+    if (createFrame < 0) {
+        printf("I Frame was not created.\n");
+        return -1;  
+    } 
+
+    // config alarm 
     int timeout = parameters.timeout;
+    int nRetransmissions = parameters.nRetransmissions;
+    int nBytes = 0;
+    
+    configAlarm(); 
+
+    while (alarmCount < nRetransmissions) {
+        if (!alarmEnabled) {
+            int bytes = writeBytesSerialPort(Iframe, createFrame);
+            sleep(1);
+            printf("%d bytes written to serial port\n", bytes);
+            
+            enableAlarm(timeout); // Set alarm to be triggered in timeout seconds
+            alarmEnabled = TRUE;
+        }
+
+        // read if it is RR or REJ 
+        unsigned char byte; 
+        int read = readByteSerialPort(&byte); 
+        // ver se e rej ou rr 
+        // usar readResponse() -> identifica que resposta foi dada pelo recetor. a partir do output, age de maneira diferente 
+        
+    }
+}
+
+int llread(unsigned char *packet) { // validates I frames and puts data in packet.  
+    if (packet == NULL) {
+        printf("packet is NULL.\n"); 
+        return -1; 
+    }
+    
+
+    unsigned char expectedFrameNumber = 0; // might be 0 or 1 
+    unsigned char response[5]; 
+    while(1) {
+
+        int result = checkIFrame(A_SND, &expectedFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
+        
+        // >= 0 sucesso, packet contem o payload (1000 bytes) 
+        // -1 leitura errada na porta série 
+        // -2 frame duplicada 
+        // -3 byte stuffing não foi concluido com sucesso 
+        // -4 tamanho do payload é > 1000 bytes 
+        // -5 bcc2 está errado 
+        // -6 a função deixou de funcionar inesperadamente 
+        // -7 bcc1 está errado, máquina de estados atingiu estado "mau"
+        
+        if (result > 0) { // send rr(Ns+1)
+            createResponse(response, expectedFrameNumber, result);
+            sendResponse(response); 
+        } else if (result == -1) {
+            printf("Byte could not be read correctly from the serial port.\n"); 
+        } else if (result == -2) { // send RR(Ns+1)  
+            printf("Frame sent is duplicated.\n"); 
+            createResponse(response, expectedFrameNumber, result); // created rr frame 
+            sendResponse(response); // send rr response  
+        } else if (result == -3) {
+            printf("Byte Stuffing detected an error.\n");
+        } else if (result == -4) {
+            printf("Size of data is too much for the current payload size limit.\n"); 
+        } else if (result == -5) { // implement rejection REJ(Ns)
+            printf("BCC2 is incorrect.\n");
+        } else if (result == -6) {
+            printf("I Frame could not be processed.\n"); 
+        } else { 
+            printf("BCC1 is incorrect.\n");
+            continue;  
+        }
+
+    }
+    return 0; 
+}
+
+/*int timeout = parameters.timeout;
     int nRetransmissions = parameters.nRetransmissions;
 
     configAlarm();
@@ -185,7 +268,7 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
 
     while (alarmCount < nRetransmissions) {
         if (!alarmEnabled) {
-            int bytes = writeBytesSerialPort(buf, bufSize);
+            int bytes = writeBytesSerialPort(&buf, bufSize);
             sleep(1);
             printf("%d bytes written to serial port\n", bytes);
             
@@ -205,34 +288,7 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
                 break; 
             }
         }
-    }
-    return 0;
-}
-
-int llread(unsigned char *packet) { // validates I frames and puts data in packet.  
-    if (packet == NULL) {
-        printf("packet is NULL.\n"); 
-        return -1; 
-    }
-    
-     
-    unsigned char llFrameNumber = 0; // might be 0 or 1 
-    
-    while(1) {
-         int result = checkIFrame(A_Tx, &llFrameNumber, packet); 
-
-         if (result > 0) {
-            if (llFrameNumber == frameNumber) { // in this case Ns is correct 
-                // implement byte de-stuffing
-            } else {
-                continue; // ignore ... 
-                // or send RR(Ns) 
-            }
-         }
-    }
-    return 0; 
-}
-
+    }*/
 
 int checkFrame() {
     unsigned char byte; 

@@ -13,6 +13,7 @@
 #define BCC_UA_Tx (A_Tx ^C_UA)
 #define BCC_DISC_Tx (A_Tx ^C_DISC)
 #define BCC_DISC_Rx (A_Rx ^C_DISC)
+
 #define FALSE 0
 #define TRUE 1
 

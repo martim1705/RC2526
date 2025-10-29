@@ -112,13 +112,13 @@ int change_state(unsigned char byte, int *current_state) {
 }
 
 
-IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned char expectedAddress, unsigned char frameNumber) {
+IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned char expectedAddress, unsigned char expectedframeNumber) {
     switch(current_state) {
         case IF_START:
             if (byte == FLAG) {
-                return IF_FLAG_RCV; 
+                return IF_FLAG_RCV;
             } else {
-                return IF_START; 
+                return IF_START;
             }
         
         case IF_FLAG_RCV:
@@ -127,40 +127,31 @@ IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned c
             }
             else return IF_A_RCV;
             
-        case IF_A_RCV:
-                return IF_C_RCV; 
+        case IF_A_RCV: 
+                return IF_C_RCV;
+
         
         case IF_C_RCV: {
-            unsigned char bcc1 = expectedAddress ^ frameNumber;
+            unsigned char bcc1 = expectedAddress ^ expectedframeNumber;
             if (bcc1 == byte)
                 return IF_BCC1_OK;
             else
-                return IF_START;
+                return IF_BCC1_BAD;
         } 
 
         case IF_BCC1_OK:
             if (byte == FLAG) {
                 return IF_STOP; 
-            } else if (byte == ESC) {
-                return IF_DATA_ESC; 
-            } else {
-                return IF_DATA;
-            }
-        
-        case IF_DATA: 
-            
-            if (byte == FLAG) {
-                return IF_STOP; 
-            } else if (byte == ESC) {
-                return IF_DATA_ESC; 
-            } else {
-                return IF_DATA;
             }
 
-        case IF_DATA_ESC:
-            return IF_DATA; 
+        
+
+        //case IF_BCC1_BAD: 
+        //    printf("bcc1 wrong.\n"); // nao esquecer de tirar esta porra 
+        //    return IF_DATA;  
 
         default:
             return IF_START; 
     }
+
 }
