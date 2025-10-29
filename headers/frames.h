@@ -16,5 +16,5 @@ int createResponse(unsigned char *frame, unsigned char Ns, int code);
 int sendResponse(unsigned char *frame);
 int sendIFrame(unsigned char *frame, int bufSize);
 int readResponse(unsigned char *frame);
-int checkFrame(unsigned char *frame);
+int checkFrame();
 #endif

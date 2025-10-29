@@ -24,6 +24,10 @@ typedef enum {
     IF_C_RCV, 
     IF_BCC1_BAD,
     IF_BCC1_OK,
+    IF_DATA,
+    IF_DATA_W,
+    IF_DATA_ESC,
+    IF_DATA_STUF,
     IF_STOP,
     IF_BCC2_BAD,
     IF_BCC2_OK,
@@ -33,5 +37,5 @@ typedef enum {
 
 int change_state(unsigned char byte, int *current_state);
 
-IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned char expectedAddress, unsigned char frameNumber);  
+IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned char expectedAddress, unsigned char frameNumber, unsigned char realFrameNumber);  
 #endif

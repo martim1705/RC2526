@@ -112,7 +112,8 @@ int change_state(unsigned char byte, int *current_state) {
 }
 
 
-IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned char expectedAddress, unsigned char expectedframeNumber) {
+IFrameState updateIFrameState(unsigned char byte, IFrameState current_state, unsigned char expectedAddress, unsigned char *realFrameNumber) { 
+    static unsigned char control; 
     switch(current_state) {
         case IF_START:
             if (byte == FLAG) {
@@ -124,15 +125,23 @@ IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned c
         case IF_FLAG_RCV:
             if (byte == FLAG) {
                 return IF_FLAG_RCV; 
+            } else if (byte == expectedAddress) {
+                return IF_A_RCV; 
             }
-            else return IF_A_RCV;
+            else return IF_START;
             
         case IF_A_RCV: 
-                return IF_C_RCV;
+            if (byte != 0x00 && byte != 0x80) {
+                return IF_START; 
+            } else {
+                control = byte; 
+                *realFrameNumber = (byte >> 6) & 0x01; 
+                return IF_C_RCV; 
+            }
 
         
         case IF_C_RCV: {
-            unsigned char bcc1 = expectedAddress ^ expectedframeNumber;
+            unsigned char bcc1 = expectedAddress ^ control;
             if (bcc1 == byte)
                 return IF_BCC1_OK;
             else
@@ -140,15 +149,10 @@ IFrameState updateIFrameState(unsigned byte,enum State current_state, unsigned c
         } 
 
         case IF_BCC1_OK:
-            if (byte == FLAG) {
-                return IF_STOP; 
-            }
+            return IF_DATA; 
 
-        
-
-        //case IF_BCC1_BAD: 
-        //    printf("bcc1 wrong.\n"); // nao esquecer de tirar esta porra 
-        //    return IF_DATA;  
+        case IF_BCC1_BAD:
+            return IF_START; 
 
         default:
             return IF_START; 

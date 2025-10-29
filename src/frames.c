@@ -35,14 +35,11 @@ int create_UA_Tx(unsigned char *frame) { // create a UA frame
 }
 
 // if returns >= 0 success
-int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, unsigned char *packet) {  // packet is where data will be stored 
+int checkIFrame(unsigned char expectedAddressField, unsigned char *expectedframeNumber, unsigned char *packet) {  // packet is where data will be stored 
     
-    IFrameState state = IF_START; 
-    //unsigned char address; 
-    unsigned char control;  
-    //int totalBytes = 0;  
+    IFrameState state = IF_START;   
     unsigned char byte; 
-    unsigned char ns;
+    unsigned char realFrameNumber; // 
     
     while (state != IF_STOP && state != IF_BCC1_BAD && state != IF_BCC2_BAD) { // fica a ler, até chegar ao estado final, ou bcc1 errado, ou bcc2 errado 
         
@@ -54,19 +51,19 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
         if (r == 1) {
             //++totalBytes; 
             // mudar estado da maquina de estados pra I Frames
-            state = updateIFrameState(&byte, state, expectedAddressField, frameNumber);
+            state = updateIFrameState(byte, state, expectedAddressField, &realFrameNumber);
 
-            if (state == IF_A_RCV) {
-                //address = byte;
+            
+            if (state == IF_A_RCV || state == IF_C_RCV) {
                 continue; 
             }
 
-            if (state == IF_C_RCV) {
-                control = byte; 
-                continue;
-            }
             
             if (state == IF_BCC1_OK) {
+                if (realFrameNumber != *frameNumber) {
+                    printf("Frame duplicada recebida! Esperava %d, recebeu %d\n", *frameNumber, prevFrameNumber);
+                    return -2; // frame duplicada
+                }
                 //ns = (control >> 6) & 0x01;
                 //if (*frameNumber != ns) { // se a trama é duplicada, proceder a retornar erro!! 
                 //    printf("Frame is duplicated!\n"); 
@@ -76,12 +73,21 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
                 unsigned char confirmBCC2 = 0; 
                 int idx = 0;  
                 int escaped = 0; // 0 = falso 
-                
+                unsigned char prevByte = 0; 
+                int havePrev = 0; 
+
                 while (1) {
-                    r = readByteSerialPort(&byte); 
+                    r = readByteSerialPort(&byte);
+                     
+
                     if (r < 0) return -1; 
                     if (byte == FLAG) {
-                        if (confirmBCC2 == 0) { // confirmBCC2 == 0 porque (D1 XOR D2 XOR ...XOR DN) XOR BCC2 == 0
+                        if (!havePrev) {
+                            return ; // no bcc2 received 
+                        }
+
+                        unsigned char bcc2 = prevByte; 
+                        if ((confirmBCC2 ^ bcc2) == 0) { // confirmBCC2 == 0 porque (D1 XOR D2 XOR ...XOR DN) XOR BCC2 == 0
                             state = IF_BCC2_OK;  
                         } else {
                             state = IF_BCC2_BAD;  
@@ -101,28 +107,29 @@ int checkIFrame(unsigned char expectedAddressField, unsigned char *frameNumber, 
                         }
                         escaped = 0; 
                     }
-                    if (idx >= MAX_PAYLOAD_SIZE) {
-                        printf("Payload size exceeded!\n");
-                        return -4;
+                    if (havePrev) {
+                        if (idx >= MAX_PAYLOAD_SIZE) {
+                            printf("Payload size exceeded!\n");
+                            return -4;
+                        }
+                        packet[idx++] = prevByte; 
+                        confirmBCC2 ^= prevByte; 
                     }
-                    packet[idx++] = byte; 
-                    confirmBCC2 ^= byte; 
+                    
+                    prevByte = byte; 
+                    havePrev = 1;  
                 }
 
-                ns = (control >> 6) & 0x01;
 
 
                 if (state == IF_BCC2_OK) {
-                    // send RR 
-                    if (ns == *frameNumber) {
-                        *frameNumber = !(*frameNumber);
-                        return idx;
-                    } // success
-                    else continue;  // BCC2 is correct, but frame is a duplicate -> ignore 
+                    *frameNumber = !(*frameNumber);
+                    return idx;
                 } 
+                else continue;  // BCC2 is correct, but frame is a duplicate -> ignore 
 
                 if (state == IF_BCC2_BAD) { // bcc2 is incorrect 
-                    if (ns == *frameNumber) return -5; // frame is not a duplicate, but is rejected -> discard data & send REJ 
+                    if (prevFrameNumber == *frameNumber) return -5; // frame is not a duplicate, but is rejected -> discard data & send REJ 
                     else return -2;// bcc2 is incorrect and frame is duplicate -> discard data & send RR 
                 }
                 
@@ -276,26 +283,21 @@ int readResponse(unsigned char *frame) { // returns a number corresponding to rr
 }
 
 
-int checkFrame(unsigned char *frame) {
+int checkFrame() {
     unsigned char byte; 
-    int idx = 0;
-    if (frame == NULL) {
-        return -1; 
-    }
+    int current_state = ST_START; // INITIAL STATE
 
-    while (1) {
-        int r = readByteSerialPort(&byte); 
-        if (r < 0) {
-            return -1; 
-        }
+    while (current_state != ST_STOP) { // While current_state is not the last
         
-        if (idx == 0 && byte == FLAG) {
-            frame[idx++] = byte; 
-            continue; 
-        } else if (idx == 4 && byte == FLAG) {
-            frame[idx++] = byte; 
-            return; 
+        int r = readByteSerialPort(&byte); 
+        if (r == 1) { // while a SET byte is read  
+            change_state(byte, &current_state); // stage changes 
+            printf("Byte read: 0x%02X\n", byte);
         }
-
+        else if (r < 0) { 
+            perror("No byte was read in receiver serialPort."); 
+            return -1;
+        }
     }
+    return 0;
 }
