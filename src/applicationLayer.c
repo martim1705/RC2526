@@ -41,7 +41,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
         printf("filename, serialPort, or role parameters were passed as NULL.\n");
         return; 
     }
-    //printf("timeout - %d\nnretransmissions - %d\n", timeout, nretransmissions);
+    
     LinkLayer parameters; 
     strcpy(parameters.serialPort, serialPort);
     parameters.baudrate = baudrate; 
@@ -61,7 +61,8 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
 
     if (parameters.role == LlTx) {
         
-        FILE *file = fopen(filename, "rb");
+        const char * Txfilename = filename; 
+        FILE *file = fopen(Txfilename, "rb");
 
         if (file == NULL) {
             perror("Error opening file");
@@ -74,7 +75,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
             return; 
         }    
         unsigned char Cpacket[MAX_PAYLOAD_SIZE];
-        int CpacketSize = buildControlPacket(Cpacket, filename, fileSize, 1); // returns the size of the START control packet 
+        int CpacketSize = buildControlPacket(Cpacket, Txfilename, fileSize, 1); // returns the size of the START control packet 
         
         printf("\nSTART PACKET SENT (hex): ");
         for (int i = 0; i < CpacketSize; i++)
@@ -104,7 +105,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
             return; 
         }
         printf("o erro pode estar aqui!\n");
-        CpacketSize = buildControlPacket(Cpacket, filename, fileSize,3); 
+        CpacketSize = buildControlPacket(Cpacket, Txfilename, fileSize,3); 
         
         if ( CpacketSize < 0) {
             printf("Could not contruct END Control packet.\n"); 
@@ -115,10 +116,10 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
 
         fclose(file); 
     } else { // receiver 
-
+        const char *Rxfilename = filename; 
         unsigned char packet[MAX_PAYLOAD_SIZE + 4]; 
         int packetSize; 
-        char filename[256];
+        char txfilename[256];
         long int fileSize = 0; 
         
         packetSize = llread(packet); 
@@ -141,14 +142,14 @@ for (int k = 0; k < packetSize; k++) {
 printf("\n");
 
 
-        if (readControlPacket(packet, &fileSize, packetSize, filename) < 0) {
+        if (readControlPacket(packet, &fileSize, packetSize, txfilename) < 0) {
             printf("Could not read START packet.\n"); 
             return; 
         }
 
-        FILE *file = fopen("received_penguin.gif", "wb");
+        FILE *file = fopen(Rxfilename, "wb");
         if (file == NULL) {
-            printf("Could not create file named: received_penguin.gif");
+            printf("Could not create file\n");
             return;
         }  
         

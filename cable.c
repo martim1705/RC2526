@@ -89,7 +89,7 @@ int openSerialPort(const char *serialPort, struct termios *oldtio, struct termio
 // Add noise to a buffer, by flipping the byte in the "errorIndex" position.
 void addNoiseToBuffer(unsigned char *buf, size_t errorIndex)
 {
-    buf[errorIndex] ^= 0xFF;
+    buf[errorIndex] ^= 0x54; //FF
 }
 
 
