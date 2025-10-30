@@ -13,9 +13,9 @@ int sendFile(FILE* file) {
     unsigned char packet[MAX_PAYLOAD_SIZE + 4]; 
     unsigned char seqNum = 0; 
     size_t bytesRead; 
-    //printf("Before while loop.\n"); 
+    printf("Before while loop.\n"); 
     while ((bytesRead = fread(data, 1, MAX_PAYLOAD_SIZE, file)) > 0) {
-        //printf("Entered loop\n"); 
+        printf("Entered loop\n"); 
         int packetSize = buildDataPacket(packet, data, bytesRead, seqNum); 
         if (packetSize < 0) {
             printf("Data packet building error.\n");
@@ -76,6 +76,11 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
         unsigned char Cpacket[MAX_PAYLOAD_SIZE];
         int CpacketSize = buildControlPacket(Cpacket, filename, fileSize, 1); // returns the size of the START control packet 
         
+        printf("\nSTART PACKET SENT (hex): ");
+        for (int i = 0; i < CpacketSize; i++)
+            printf("%02X ", Cpacket[i]);
+        printf("\n");
+        
         if ( CpacketSize < 0) {
             printf("Could not contruct START Control packet.\n"); 
             return; 
@@ -127,6 +132,14 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
             printf("Expected START packet.\n"); 
             return; 
         }
+
+
+        printf("START PACKET RECEIVED (%d bytes): ", packetSize);
+for (int k = 0; k < packetSize; k++) {
+    printf("%02X ", packet[k]);
+}
+printf("\n");
+
 
         if (readControlPacket(packet, &fileSize, packetSize, filename) < 0) {
             printf("Could not read START packet.\n"); 

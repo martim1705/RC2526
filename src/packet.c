@@ -64,7 +64,7 @@ int buildDataPacket(unsigned char *packet, unsigned char *data, int dataSize, un
         return -1;
     }
 
-    if (dataSize > MAX_PAYLOAD_SIZE) {
+    if (dataSize > MAX_PAYLOAD_SIZE + 4) {
         printf("Payload too large (max = %d bytes).\n", MAX_PAYLOAD_SIZE);
         return -1;
     }   
@@ -84,21 +84,33 @@ int buildDataPacket(unsigned char *packet, unsigned char *data, int dataSize, un
 
 
 int readControlPacket(unsigned char *packet, long int *fileSize, int packetSize, char *filename) {
-    
-    if (filename == NULL || packet == NULL || fileSize == NULL ) {printf("arguments passed are null pointer.\n");return -1;}
-    int i = 1;
-    while (i < packetSize) {
-        unsigned char T = packet[i++]; // t1 t2
-        unsigned char L = packet[i++]; // l1 l2 
-
-        if (T == 0) {
-            memcpy(fileSize, &packet[i], L); 
-        } else if (T == 1) {
-            memcpy(fileSize, &packet[i], L); 
-            filename[L] = '\0'; 
-        }
-        i += L; 
+    if (filename == NULL || packet == NULL || fileSize == NULL) {
+        printf("arguments passed are null pointer.\n");
+        return -1;
     }
 
-    return 1; 
+    int i = 1; // começa depois do campo C
+    *fileSize = 0;
+
+    while (i < packetSize) {
+        unsigned char T = packet[i++];
+        unsigned char L = packet[i++];
+
+        if (T == 0) {  // file size
+            // reconstrói o valor em big-endian
+            *fileSize = 0;
+            for (int j = 0; j < L; j++) {
+                *fileSize = (*fileSize << 8) | packet[i + j];
+            }
+        } 
+        else if (T == 1) {  // filename
+            memcpy(filename, &packet[i], L);
+            filename[L] = '\0';
+        }
+
+        i += L;
+    }
+
+    printf("readControlPacket(): fileSize = %ld, filename = %s\n", *fileSize, filename);
+    return 1;
 }
