@@ -1,9 +1,10 @@
 #include "../headers/applicationLayer.h"
 
 
-unsigned char Cpacket[264];
+
 
 int sendFile(FILE* file) {
+    printf("Entered sendFile.\n"); 
     if (file == NULL) {
         printf("null pointer given.\n"); 
         return -1; 
@@ -12,8 +13,9 @@ int sendFile(FILE* file) {
     unsigned char packet[MAX_PAYLOAD_SIZE + 4]; 
     unsigned char seqNum = 0; 
     size_t bytesRead; 
-
+    //printf("Before while loop.\n"); 
     while ((bytesRead = fread(data, 1, MAX_PAYLOAD_SIZE, file)) > 0) {
+        //printf("Entered loop\n"); 
         int packetSize = buildDataPacket(packet, data, bytesRead, seqNum); 
         if (packetSize < 0) {
             printf("Data packet building error.\n");
@@ -39,7 +41,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
         printf("filename, serialPort, or role parameters were passed as NULL.\n");
         return; 
     }
-
+    //printf("timeout - %d\nnretransmissions - %d\n", timeout, nretransmissions);
     LinkLayer parameters; 
     strcpy(parameters.serialPort, serialPort);
     parameters.baudrate = baudrate; 
@@ -60,34 +62,43 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
     if (parameters.role == LlTx) {
         
         FILE *file = fopen(filename, "r");
+
+        if (file == NULL) {
+            perror("Error opening file");
+            return;
+        }
         
         long int fileSize = getFileSize(file); // returns the size of filename 
         
         if (fileSize < 0) {
             return; 
         }    
-        
+        unsigned char Cpacket[MAX_PAYLOAD_SIZE];
         int CpacketSize = buildControlPacket(Cpacket, filename, fileSize, 1); // returns the size of the START control packet 
         
         if ( CpacketSize < 0) {
             printf("Could not contruct START Control packet.\n"); 
             return; 
         }
-
-        llwrite(Cpacket, CpacketSize); // sends the START packet 
-         
-        
+        printf("O pacote START foi enviado.\n"); 
+        if (llwrite(Cpacket, CpacketSize) < 0) { // sends the START packet 
+            printf("START packet was not sent.\n"); 
+            return; 
+        }
+        printf("Linha 81, applicationLayer.c\n"); 
         if (file == NULL) {
             printf("Error opening file.\n");
             return;
         }
+        printf("Linha 86, pointer file = %p\n", file);
 
+        printf("Linha 88, applicationLayer.c\n");
         if (sendFile(file) < 0) {
             printf("Could not send file.\n"); 
             fclose(file); 
             return; 
         }
-
+        printf("o erro pode estar aqui!\n");
         CpacketSize = buildControlPacket(Cpacket, filename, fileSize,3); 
         
         if ( CpacketSize < 0) {

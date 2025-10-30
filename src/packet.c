@@ -17,12 +17,12 @@ long int getFileSize(FILE *file) {
         return -1;
     }
 
-    fclose(file);
-     
+    //fclose(file);
+    rewind(file);
     return res;  
 }
 
-int buildControlPacket(unsigned char *packet, const char *filename, long int fileSize, int type) {
+int buildControlPacket(unsigned char *packet, const char *filename, long int fileSize, unsigned char type) {
     // type pode ser 1 (start) ou 3 (end) 
     if (type != 1 && type != 3) {
         printf("type value is invalid.\n"); 
@@ -38,9 +38,12 @@ int buildControlPacket(unsigned char *packet, const char *filename, long int fil
 
     packet[ind++] = type;
     packet[ind++] = 0; //size 
-    packet[ind++] = sizeof(fileSize); 
-    memcpy(&packet[ind], &fileSize, sizeof(fileSize)); 
-    ind += sizeof(fileSize); 
+    packet[ind++] = 4; 
+    packet[ind++] = (fileSize >> 24) & 0xFF;
+    packet[ind++] = (fileSize >> 16) & 0xFF;
+    packet[ind++] = (fileSize >> 8) & 0xFF;
+    packet[ind++] = (fileSize) & 0xFF;    
+     
 
     packet[ind++] = 1;
     packet[ind++] = strlen(filename); 

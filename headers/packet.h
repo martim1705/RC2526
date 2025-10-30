@@ -8,7 +8,7 @@
 #include <string.h>
 
 long int getFileSize(FILE* filename); // returns file size
-int buildControlPacket(unsigned char *packet, const char *filename, long int fileSize, int type); // builds the START packet 
+int buildControlPacket(unsigned char *packet, const char *filename, long int fileSize, unsigned char type); // builds the START packet 
 int sendControlPacket(unsigned char *packet, unsigned char *data, int dataSize); // sends the control packets
 int buildDataPacket(unsigned char *packet, unsigned char *data, int dataSize, unsigned char seqNum); // builds the data packet 
 int readControlPacket(unsigned char *packet, long int *fileSize, int packetSize, char *filename); 
