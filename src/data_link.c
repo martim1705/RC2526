@@ -261,7 +261,7 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
                     printf("It was not possible to send the response.\n"); 
                     return -1;
                 }
-                return 5; 
+                return result; 
             } 
             else {
                 printf("Resposta não foi criada com sucesso\n"); 

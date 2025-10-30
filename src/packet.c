@@ -2,6 +2,10 @@
 
 long int getFileSize(FILE *file) {
     
+    if (file == NULL) {
+        printf("[getFileSize] File pointer is NULL.\n");
+        return -1;
+    }
 
     if (fseek(file, 0L, SEEK_END)) {
         printf("Pointer error.\n");
@@ -19,10 +23,14 @@ long int getFileSize(FILE *file) {
 
     //fclose(file);
     rewind(file);
+
+    printf("[getFileSize] File size = %ld bytes\n", res);
     return res;  
 }
 
 int buildControlPacket(unsigned char *packet, const char *filename, long int fileSize, unsigned char type) {
+    printf("aaaaaaa %ld (at %p)\n", fileSize, &fileSize);
+
     // type pode ser 1 (start) ou 3 (end) 
     if (type != 1 && type != 3) {
         printf("type value is invalid.\n"); 
@@ -90,11 +98,16 @@ int readControlPacket(unsigned char *packet, long int *fileSize, int packetSize,
     }
 
     int i = 1; // começa depois do campo C
-    *fileSize = 0;
+    //*fileSize = 0;
 
-    while (i < packetSize) {
+    while (i + 1 < packetSize) {
         unsigned char T = packet[i++];
         unsigned char L = packet[i++];
+
+        if (i + L > packetSize) {  // segurança extra
+            printf("Invalid packet: exceeds declared size.\n");
+            return -1;
+        }
 
         if (T == 0) {  // file size
             // reconstrói o valor em big-endian

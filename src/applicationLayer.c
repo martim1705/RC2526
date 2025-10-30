@@ -61,7 +61,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
 
     if (parameters.role == LlTx) {
         
-        FILE *file = fopen(filename, "r");
+        FILE *file = fopen(filename, "rb");
 
         if (file == NULL) {
             perror("Error opening file");
@@ -146,9 +146,9 @@ printf("\n");
             return; 
         }
 
-        FILE *file = fopen(filename, "w");
+        FILE *file = fopen("received_penguin.gif", "wb");
         if (file == NULL) {
-            printf("Could not create file named: %s", filename);
+            printf("Could not create file named: received_penguin.gif");
             return;
         }  
         
