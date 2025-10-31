@@ -45,14 +45,16 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    printf("Starting opening application-layer connection.\n"
-           "Serial port: %s\n"
-           "Role: %s\n"
-           "Baudrate: %d\n"
-           "Timeout: %d\n"
-           "Retransmissions: %d\n"
-           "Filename: %s\n", serialPort, role, 
-           baudrate, TIMEOUT, NTRANSMISSIONS,filename);
+    printf("----------------------------------------------------------------------------------------------\n\n"
+       "Starting opening application-layer connection:\n\n"
+       "Serial port: %s\n"
+       "Role: %s\n"
+       "Baudrate: %d\n"
+       "Timeout: %d\n"
+       "Retransmissions: %d\n"
+       "Filename: %s\n\n"
+       "----------------------------------------------------------------------------------------------\n",
+       serialPort, role, baudrate, TIMEOUT, NTRANSMISSIONS, filename);
 
     appConfig(serialPort, role, baudrate, TIMEOUT, NTRANSMISSIONS,filename);
     

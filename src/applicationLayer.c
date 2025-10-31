@@ -177,7 +177,7 @@ printf("\n");
             }
         }
         fclose(file); 
-        printf("Success"); 
+        printf("Success\n"); 
     }
     
     llclose(parameters); 

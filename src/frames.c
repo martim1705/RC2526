@@ -301,7 +301,6 @@ int checkFrame() {
         int r = readByteSerialPort(&byte); 
         if (r == 1) { // while a SET byte is read  
             change_state(byte, &current_state); // stage changes 
-            printf("Byte read: 0x%02X\n", byte);
         }
         else if (r < 0) { 
             perror("No byte was read in receiver serialPort."); 

@@ -8,15 +8,17 @@ unsigned char ns = 0x00; // 0x00 or 0x80
 
 int llopen(LinkLayer connectionParameters) { // NOT TESTED
 
-    //printf("a = %d\n b = %d\n", parameters.timeout, parameters.nRetransmissions);
     parameters = connectionParameters; 
 
     if (openSerialPort(parameters.serialPort, parameters.baudrate) < 0) {
             printf("Serial port opening error.\n");
             return -1; 
         };
-    printf("Serial port %s opened\n", parameters.serialPort);
-
+    printf("Serial port %s opened\n"
+        "----------------------------------------------------------------------------------------------\n\n", // Terminal formating
+        parameters.serialPort);
+    
+    printf("Establishment:\n\n");
     // Array used to create SET or UA frames
     unsigned char frame[BUF_SIZE];
 
@@ -35,14 +37,14 @@ int llopen(LinkLayer connectionParameters) { // NOT TESTED
         //printf("timeout: %d",timeout);
         while (alarmCount < nRetransmissions) {
             if (!alarmEnabled) {
-                int bytes = writeBytesSerialPort(frame, BUF_SIZE);  // Send SET frame
-                printf("%d bytes written to serial port\n", bytes);
+                writeBytesSerialPort(frame, BUF_SIZE);  // Send SET frame
+                printf("SET byte written to serial port\n");
                 //sleep(1);
                 
                 enableAlarm(timeout);                               // Set alarm to be triggered in 3s
 
                 if (checkFrame() == 0) {                            // Read UA frame
-                    printf("UA frame received from Receiver.\n");
+                    printf("UA frame received from Receiver.\n\n");
                     break;
                 } else {
                     printf("UA frame was incorrectly set up.\n");
@@ -71,16 +73,20 @@ int llopen(LinkLayer connectionParameters) { // NOT TESTED
             printf("Bytes could not be sent by sender."); 
             exit(1); 
         } else {
-            printf("Bytes written!");
+            printf("UA bytes written!\n\n");
         }
 
         //sleep(1);
 
-    } else return -1; 
+    } else return -1;
+    printf("----------------------------------------------------------------------------------------------\n\n"); // Terminal formating
     return 0;
 }
      
-int llclose() { // NOT TESTED
+int llclose() {
+
+    printf("----------------------------------------------------------------------------------------------\n\n"
+        "Termination:\n\n");
 
     // Array used to create DISC or UA frames
     unsigned char frame[BUF_SIZE];
@@ -100,14 +106,14 @@ int llclose() { // NOT TESTED
 
         while (alarmCount < nRetransmissions) {
             if (!alarmEnabled) {
-                int bytes = writeBytesSerialPort(frame, BUF_SIZE);  // Send transmitter DISC frame
-                printf("%d bytes written to serial port\n", bytes);
+                writeBytesSerialPort(frame, BUF_SIZE);  // Send transmitter DISC frame
+                printf("Transmitter DISC bytes written to serial port\n");
                 // sleep(1);
                 
                 enableAlarm(timeout);                               // Set alarm to be triggered in 3s
 
                 if (checkFrame() == 0) {                            // Read reveiver DISC frame
-                    printf("DISC frame received from Receiver.\n");
+                    printf("DISC frame received from Receiver.\n\n");
                     break;
                 } else {
                     printf("UA frame was incorrectly set up.\n");
@@ -155,12 +161,13 @@ int llclose() { // NOT TESTED
             printf("UA frame was incorrectly set up.\n");
             return -1;
         } else {
-            printf("UA received, all Done\n");
+            printf("UA received, all Done\n\n");
         }
 
     } else {
         return -1;
     }
+    printf("----------------------------------------------------------------------------------------------\n");
     return 0;
 }
 
