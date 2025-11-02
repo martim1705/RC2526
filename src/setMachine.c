@@ -135,7 +135,7 @@ IFrameState updateIFrameState(unsigned char byte, IFrameState current_state, uns
                 return IF_START; 
             } else {
                 control = byte; 
-                *realFrameNumber = (byte >> 6) & 0x01; 
+                *realFrameNumber = (byte >> 7) & 0x01; 
                 return IF_C_RCV; 
             }
 

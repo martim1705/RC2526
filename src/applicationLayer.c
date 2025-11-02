@@ -6,16 +6,16 @@
 int sendFile(FILE* file) {
     printf("Entered sendFile.\n"); 
     if (file == NULL) {
-        printf("null pointer given.\n"); 
+        printf("Null pointer given.\n"); 
         return -1; 
     }
     unsigned char data[MAX_PAYLOAD_SIZE]; 
     unsigned char packet[MAX_PAYLOAD_SIZE + 4]; 
     unsigned char seqNum = 0; 
     size_t bytesRead; 
-    printf("Before while loop.\n"); 
+    //printf("Before while loop.\n"); 
     while ((bytesRead = fread(data, 1, MAX_PAYLOAD_SIZE, file)) > 0) {
-        printf("Entered loop\n"); 
+        //printf("Entered loop\n"); 
         int packetSize = buildDataPacket(packet, data, bytesRead, seqNum); 
         if (packetSize < 0) {
             printf("Data packet building error.\n");
@@ -86,25 +86,23 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
             printf("Could not contruct START Control packet.\n"); 
             return; 
         }
-        printf("O pacote START foi enviado.\n"); 
+         
         if (llwrite(Cpacket, CpacketSize) < 0) { // sends the START packet 
             printf("START packet was not sent.\n"); 
             return; 
         }
-        printf("Linha 81, applicationLayer.c\n"); 
+         
         if (file == NULL) {
             printf("Error opening file.\n");
             return;
         }
-        printf("Linha 86, pointer file = %p\n", file);
-
-        printf("Linha 88, applicationLayer.c\n");
+        
         if (sendFile(file) < 0) {
             printf("Could not send file.\n"); 
             fclose(file); 
             return; 
         }
-        printf("o erro pode estar aqui!\n");
+        
         CpacketSize = buildControlPacket(Cpacket, Txfilename, fileSize,3); 
         
         if ( CpacketSize < 0) {
@@ -149,7 +147,7 @@ printf("\n");
 
         FILE *file = fopen(Rxfilename, "wb");
         if (file == NULL) {
-            printf("Could not create file\n");
+            printf("Could not create file.\n");
             return;
         }  
         
@@ -173,7 +171,7 @@ printf("\n");
                 printf("END packet received.\n"); 
                 break; 
             } else {
-                printf("unidentified packet.\n"); 
+                printf("Unidentified packet.\n"); 
             }
         }
         fclose(file); 

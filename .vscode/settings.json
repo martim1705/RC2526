@@ -6,7 +6,8 @@
         "alarm_sigaction.h": "c",
         "signal.h": "c",
         "applicationlayer.h": "c",
-        "data_link.h": "c"
+        "data_link.h": "c",
+        "frames.h": "c"
     },
     "makefile.configureOnOpen": true,
     "C_Cpp.errorSquiggles": "disabled"

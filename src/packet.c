@@ -29,16 +29,16 @@ long int getFileSize(FILE *file) {
 }
 
 int buildControlPacket(unsigned char *packet, const char *filename, long int fileSize, unsigned char type) {
-    printf("aaaaaaa %ld (at %p)\n", fileSize, &fileSize);
+    
 
     // type pode ser 1 (start) ou 3 (end) 
     if (type != 1 && type != 3) {
-        printf("type value is invalid.\n"); 
+        printf("Type value is invalid.\n"); 
         return -1; 
     }
 
     if (filename == NULL) {
-        printf("filename is a null pointer.\n"); 
+        printf("Filename is a null pointer.\n"); 
         return -1; 
     }
     

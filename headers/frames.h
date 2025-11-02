@@ -4,6 +4,7 @@
 #include "../macros/const.h"
 #include "stateMachine.h"
 #include "serial.h"
+#include <stdio.h>
 
 int create_SET(unsigned char *frame); 
 int create_UA_Tx(unsigned char *frame);

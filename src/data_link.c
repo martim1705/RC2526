@@ -188,34 +188,30 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
         return -1;  
     } 
     printf("Created I Frame successfully with %d bytes.\n", createFrame); 
-    // config alarm 
+     
     int timeout = parameters.timeout;
     int nRetransmissions = parameters.nRetransmissions;
-    printf("parameters.timeout = %d, parameters.nRetransmissions = %d\n",
-       parameters.timeout, parameters.nRetransmissions);
-
-    // int nBytes = 0;
+    
     
     configAlarm(); 
 
     while (alarmCount < nRetransmissions) {
-        // printf("entered loop.\n");
-        // printf("alarmCount = %d\nnRetransmissions = %d\n ", alarmCount, nRetransmissions);
-        // p rintf("alarmEnabled = %d\n", alarmEnabled); 
+        
+         
         if (alarmEnabled) alarmEnabled = !alarmEnabled; 
         if (alarmEnabled == 0) {
             int bytes = writeBytesSerialPort(Iframe, createFrame);
             // sleep(1);
             printf("%d bytes written to serial port\n", bytes);
             
-            enableAlarm(timeout); // Set alarm to be triggered in timeout seconds
+            enableAlarm(timeout); 
             alarmEnabled = !alarmEnabled;
         }
 
-        // read if it is RR or REJ 
+         
         unsigned char response[5]; 
         int res = readResponse(response); 
-        printf("result of the response is %d\n", res); 
+         
         if (res == -1) {
             return -1; 
         } else if (res == 0 || res == 1) { // rr(0) or rr(1) 
@@ -237,6 +233,9 @@ int llwrite(const unsigned char *buf, int bufSize) { // NOT TESTED
     return -1; // error
 }
 
+unsigned char expectedFrameNumber = 0; // começa no 0, lê-se checkIFrame e se os frameNumbers coincidirem, mudamos o numero de expectedFrameNumber para !0
+
+
 int llread(unsigned char *packet) { // validates I frames and puts data in packet.  
     if (packet == NULL) {
         printf("packet is NULL.\n"); 
@@ -244,11 +243,12 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
     }
     
 
-    unsigned char expectedFrameNumber = 0; // might be 0 or 1 
+    
     unsigned char response[5]; 
     while(1) {
 
         int result = checkIFrame(A_Tx, &expectedFrameNumber, packet); // verifies all the I frame, and returns number of data bytes, or any errors 
+        printf("expectedFrameNumber is %d\n", expectedFrameNumber);
         //printf("%d\n", result); 
         // >= 0 sucesso, packet contem o payload (1000 bytes) 
         // -1 leitura errada na porta série 
@@ -259,25 +259,23 @@ int llread(unsigned char *packet) { // validates I frames and puts data in packe
         // -6 a função deixou de funcionar inesperadamente 
         // -7 bcc1 está errado, máquina de estados atingiu estado "mau"
         
-        if (result >= 0) { // send rr(Ns+1)
-            //printf("%d\n", expectedFrameNumber); 
+        if (result >= 0) {
+            // A trama foi recebida com sucesso
+            unsigned char next = !expectedFrameNumber; // próxima trama esperada
+            createResponse(response, next, result);    // envia RR(next)
+            sendResponse(response);
+
+            // Só agora atualiza o esperado
+            expectedFrameNumber = next;
+            printf("Updated expectedFrameNumber to %d\n", expectedFrameNumber);
+
+            return result;
             
-            //createResponse(response, expectedFrameNumber, result);
-            if (createResponse(response, expectedFrameNumber, result) > 0) {
-                if (sendResponse(response) < 0) {
-                    printf("It was not possible to send the response.\n"); 
-                    return -1;
-                }
-                return result; 
-            } 
-            else {
-                printf("Resposta não foi criada com sucesso\n"); 
-            }
-        } else if (result == -1) {
+        }  else if (result == -1) {
             printf("Byte could not be read correctly from the serial port.\n"); 
         } else if (result == -2) { // send RR(Ns+1)  
             printf("Frame sent is duplicated.\n"); 
-            createResponse(response, expectedFrameNumber, result); // created rr frame 
+            createResponse(response, expectedFrameNumber, result); 
             sendResponse(response); // send rr response  
         } else if (result == -3) {
             printf("Byte Stuffing detected an error.\n");
