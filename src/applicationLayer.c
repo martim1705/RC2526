@@ -47,7 +47,7 @@ void appConfig(const char *serialPort, const char* role, int baudrate, int timeo
     parameters.baudrate = baudrate; 
     parameters.nRetransmissions = nretransmissions; 
     parameters.timeout = timeout; 
-    if (!strcmp(role, "LlTx")) {
+    if (!strcmp(role, "tx")) {
         parameters.role = LlTx; 
     } else {
         parameters.role = LlRx; 

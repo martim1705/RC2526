@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     //./project 
     // utilizador escolhe opção (receiver(1)/sender(0))
     if (argc < 5) {
-        printf("Usage: %s <serial port> <baudrate> <LlTx|LlRx> filename\n", argv[0]);
+        printf("Usage: %s <serial port> <baudrate> tx|rx filename\n", argv[0]);
         return 1;
     }
 
@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
     const char *filename = argv[4]; 
 
 // check role values
-    if (strcmp(role, "LlRx") != 0 && strcmp(role, "LlTx") != 0) {
-        printf("error in role. Must be \"LlTx\" or \"LlRx\".\n");
+    if (strcmp(role, "rx") != 0 && strcmp(role, "tx") != 0) {
+        printf("error in role. Must be \"tx\" or \"rx\".\n");
         exit(1); 
     } 
     
